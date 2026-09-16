@@ -1,0 +1,24 @@
+"use client";
+
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+
+// Регистрация идемпотентна — GSAP сам игнорирует повторные вызовы.
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+}
+
+/** Кривые и длительности продублированы из globals.css (--ease-*, --dur-*). */
+export const EASE = {
+  outExpo: "expo.out",
+  inOutQuart: "power4.inOut",
+} as const;
+
+export const DUR = {
+  fast: 0.3,
+  base: 0.6,
+  slow: 1.1,
+} as const;
+
+export { gsap, ScrollTrigger, SplitText };

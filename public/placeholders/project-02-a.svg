@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="Проект 02, кадр A">
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d8dcdd"/>
+      <stop offset="100%" stop-color="#a8b2b6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#g3)"/>
+  <g fill="none" stroke="#1a1e2314" stroke-width="1">
+    <path d="M0 450H1600"/>
+    <path d="M800 0V900"/>
+  </g>
+  <circle cx="800" cy="450" r="252.00000000000003" fill="none" stroke="#1a1e231c" stroke-width="1"/>
+  <text x="800" y="450" text-anchor="middle" dominant-baseline="central"
+    font-family="Helvetica, Arial, sans-serif" font-size="162" font-weight="600" fill="#1a1e2333">02A</text>
+</svg>
