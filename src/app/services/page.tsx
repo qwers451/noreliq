@@ -33,7 +33,7 @@ export default function ServicesPage() {
         lead="Формат подбираем под задачу: от быстрого лендинга до продукта с дизайн-системой и долгой поддержкой. Стоимость считаем после короткого разговора."
       />
 
-      <section className="container-x pb-24 md:pb-32" aria-labelledby="packages">
+      <section className="container-x section-b" aria-labelledby="packages">
         <h2 id="packages" className="sr-only">
           Тарифные пакеты
         </h2>
@@ -81,17 +81,20 @@ export default function ServicesPage() {
         </Reveal>
       </section>
 
-      <section className="container-x pb-24 md:pb-32" aria-labelledby="process">
+      <section className="container-x" aria-labelledby="process">
         <SplitReveal as="h2" id="process" className="text-h2">
           Как идёт работа
         </SplitReveal>
 
         <Reveal as="ol" className="mt-12 border-t border-line" stagger={0.1} y={30}>
           {process.map((step) => (
-            <li key={step.index} className="grid gap-3 border-b border-line py-8 md:grid-cols-[6rem_1fr_1fr] md:gap-8">
-                <span className="label">{step.index}</span>
-                <h3 className="font-display text-h3">{step.title}</h3>
-                <p className="text-muted">{step.description}</p>
+            <li
+              key={step.index}
+              className="grid gap-3 border-b border-line py-8 md:grid-cols-[3rem_1fr_1.2fr] md:gap-x-4 md:gap-y-3"
+            >
+              <span className="label">{step.index}</span>
+              <h3 className="font-display text-h3">{step.title}</h3>
+              <p className="text-muted">{step.description}</p>
             </li>
           ))}
         </Reveal>

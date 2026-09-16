@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { Counter } from "@/components/motion/Counter";
+import { Disclosure } from "@/components/motion/Disclosure";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { Marquee } from "@/components/ui/Marquee";
@@ -19,7 +21,7 @@ export default function AboutPage() {
     <>
       <PageHero label="01 / О нас" title="Небольшая студия с длинными отношениями" lead={about.lead} />
 
-      <section className="container-x pb-24 md:pb-32" aria-labelledby="about-text">
+      <section className="container-x section-b" aria-labelledby="about-text">
         <h2 id="about-text" className="sr-only">
           О студии
         </h2>
@@ -34,56 +36,49 @@ export default function AboutPage() {
         <Reveal className="mt-20 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.1}>
           {about.stats.map((stat) => (
             <div key={stat.label} className="border-t border-line pt-4">
-              <span className="block font-display text-h2 leading-none">
-                {stat.value}
-              </span>
+              <Counter
+                value={stat.value}
+                className="block font-display text-h2 leading-none"
+              />
               <span className="label mt-3 block">{stat.label}</span>
             </div>
           ))}
         </Reveal>
       </section>
 
-      <section className="container-x pb-24 md:pb-32" aria-labelledby="principles">
+      <section className="container-x section-b" aria-labelledby="principles">
         <SplitReveal as="h2" id="principles" className="text-h2">
           Принципы
         </SplitReveal>
 
         <Reveal className="mt-12 border-t border-line" stagger={0.1}>
           {about.principles.map((principle) => (
-            <details key={principle.index} className="group border-b border-line">
-              <summary className="flex cursor-pointer list-none items-center gap-6 py-7">
-                <span className="label shrink-0">{principle.index}</span>
-                <span className="font-display text-h3">{principle.title}</span>
-                <span
-                  aria-hidden="true"
-                  className="ml-auto text-2xl transition-transform duration-300 ease-[var(--ease-out-expo)] group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <p className="max-w-[60ch] pb-7 pl-[calc(2rem+1.5rem)] text-muted">
-                {principle.description}
-              </p>
-            </details>
+            <Disclosure
+              key={principle.index}
+              index={principle.index}
+              title={principle.title}
+            >
+              {principle.description}
+            </Disclosure>
           ))}
         </Reveal>
       </section>
 
-      <section className="border-y border-line py-8" aria-labelledby="stack">
+      <section className="mb-[var(--section-y)] border-y border-line py-8" aria-labelledby="stack">
         <h2 id="stack" className="sr-only">
           Технологии
         </h2>
         <Marquee items={about.stack} duration={34} />
       </section>
 
-      <section className="container-x py-24 md:py-32" aria-labelledby="team">
+      <section className="container-x" aria-labelledby="team">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SplitReveal as="h2" id="team" className="text-h2">
             Команда
           </SplitReveal>
-          <p className="label">
+          <SplitReveal as="p" className="label" type="words" stagger={0.04}>
             {site.city} · {site.timezone}
-          </p>
+          </SplitReveal>
         </div>
 
         <Reveal className="mt-14 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.08}>

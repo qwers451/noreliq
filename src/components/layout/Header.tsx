@@ -78,9 +78,9 @@ export function Header() {
               alt={site.name}
               width={1991}
               height={790}
-              sizes="140px"
+              sizes="(max-width: 768px) 96px, 120px"
               priority
-              className="h-7 w-auto md:h-8"
+              className="h-9 w-auto md:h-11"
             />
           </MagneticLink>
         </TransitionLink>

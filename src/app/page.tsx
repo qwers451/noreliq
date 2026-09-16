@@ -28,7 +28,7 @@ export default function HomePage() {
             {site.tagline} · {site.city}
           </SplitReveal>
 
-          <h1 className="font-display text-hero leading-[0.85]">
+          <h1 className="isolate font-display text-hero leading-[0.85]">
             <SplitReveal as="span" className="block" immediate>
               Цифровые
             </SplitReveal>
@@ -65,8 +65,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container-x py-24 md:py-36" aria-labelledby="manifesto">
-        <span className="label">Манифест</span>
+      <section className="container-x section" aria-labelledby="manifesto">
+        <SplitReveal as="span" className="label block" type="words" stagger={0.04}>
+          Манифест
+        </SplitReveal>
         <SplitReveal
           as="h2"
           id="manifesto"
@@ -86,21 +88,23 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      <section className="border-y border-line py-8">
+      <section className="mb-[var(--section-y)] border-y border-line py-8">
         <Marquee items={about.stack} />
       </section>
 
-      <section className="container-x py-24 md:py-36" aria-labelledby="featured">
+      <section className="container-x section-b" aria-labelledby="featured">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SplitReveal as="h2" id="featured" className="text-h2">
             Избранные проекты
           </SplitReveal>
-          <TransitionLink href="/projects" className="link-mask text-muted">
-            Все проекты ({projects.length})
-          </TransitionLink>
+          <Reveal y={20}>
+            <TransitionLink href="/projects" className="link-mask text-muted">
+              Все проекты ({projects.length})
+            </TransitionLink>
+          </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-14 md:grid-cols-2">
+        <div className="mt-14 grid gap-x-10 gap-y-20 md:grid-cols-2">
           {featured.map((project, index) => (
             <Reveal
               key={project.slug}
@@ -111,6 +115,7 @@ export default function HomePage() {
                 project={project}
                 index={index}
                 priority={index === 0}
+                wide={index === 2}
                 sizes={
                   index === 2
                     ? "(max-width: 768px) 100vw, 90vw"
@@ -122,14 +127,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container-x pb-24 md:pb-36" aria-labelledby="home-services">
+      <section className="container-x" aria-labelledby="home-services">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SplitReveal as="h2" id="home-services" className="text-h2">
             Чем помогаем
           </SplitReveal>
-          <TransitionLink href="/services" className="link-mask text-muted">
-            Услуги и пакеты
-          </TransitionLink>
+          <Reveal y={20}>
+            <TransitionLink href="/services" className="link-mask text-muted">
+              Услуги и пакеты
+            </TransitionLink>
+          </Reveal>
         </div>
 
         <Reveal className="mt-12 border-t border-line" stagger={0.08}>

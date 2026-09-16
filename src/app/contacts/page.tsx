@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { MagneticLink } from "@/components/motion/MagneticLink";
+import { PageHero } from "@/components/ui/PageHero";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -14,31 +15,14 @@ export const metadata: Metadata = {
 export default function ContactsPage() {
   return (
     <>
-      <section className="container-x pb-16 pt-[calc(var(--header-h)+6vh)] md:pb-24 md:pt-[calc(var(--header-h)+12vh)]">
-        <SplitReveal as="p" className="label mb-8" type="words" immediate stagger={0.04}>
-          04 / Контакты
-        </SplitReveal>
+      <PageHero
+        label="04 / Контакты"
+        title="Расскажите, что нужно сделать"
+        titleClassName="max-w-[16ch]"
+        lead="Напишите пару строк о задаче и сроках — ответим в течение рабочего дня и предложим формат работы."
+      />
 
-        <SplitReveal
-          as="h1"
-          className="max-w-[16ch] font-display text-display leading-[0.9]"
-          immediate
-        >
-          Расскажите, что нужно сделать
-        </SplitReveal>
-
-        <SplitReveal
-          as="p"
-          className="mt-10 max-w-[46ch] text-lead leading-snug text-muted"
-          delay={0.15}
-          immediate
-        >
-          Напишите пару строк о задаче и сроках — ответим в течение рабочего дня и предложим формат
-          работы.
-        </SplitReveal>
-      </section>
-
-      <section className="container-x pb-20 md:pb-28" aria-labelledby="direct">
+      <section className="container-x section-b" aria-labelledby="direct">
         <h2 id="direct" className="sr-only">
           Прямые контакты
         </h2>
@@ -68,10 +52,10 @@ export default function ContactsPage() {
         </Reveal>
       </section>
 
-      <section className="container-x pb-20 md:pb-28" aria-labelledby="socials">
-        <h2 id="socials" className="label">
+      <section className="container-x section-b" aria-labelledby="socials">
+        <SplitReveal as="h2" id="socials" className="label" type="words" stagger={0.04}>
           Соцсети
-        </h2>
+        </SplitReveal>
 
         <Reveal as="ul" className="mt-6 border-t border-line" stagger={0.08} y={24}>
           {site.socials.map((social) => (
@@ -96,10 +80,10 @@ export default function ContactsPage() {
       </section>
 
       {/* Место под форму обратной связи: появится здесь, вёрстку менять не придётся. */}
-      <section className="container-x pb-24 md:pb-32" aria-labelledby="details">
-        <h2 id="details" className="label">
+      <section className="container-x" aria-labelledby="details">
+        <SplitReveal as="h2" id="details" className="label" type="words" stagger={0.04}>
           Реквизиты и адрес
-        </h2>
+        </SplitReveal>
 
         <Reveal
           as="dl"

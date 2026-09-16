@@ -21,8 +21,8 @@ export default function ProjectsPage() {
         lead="Выборка проектов за последние годы. Каждый кейс — про задачу, решение и результат, а не только про картинки."
       />
 
-      <section className="container-x pb-24 md:pb-32" aria-label="Список проектов">
-        <div className="grid gap-14 md:grid-cols-2 md:gap-x-10 md:gap-y-24">
+      <section className="container-x" aria-label="Список проектов">
+        <div className="grid gap-x-10 gap-y-20 md:grid-cols-2">
           {projects.map((project, index) => (
             <Reveal
               key={project.slug}
@@ -33,6 +33,7 @@ export default function ProjectsPage() {
                 project={project}
                 index={index}
                 priority={index === 0}
+                wide={index % 3 === 0}
                 sizes={
                   index % 3 === 0
                     ? "(max-width: 768px) 100vw, 90vw"

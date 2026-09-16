@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { Counter } from "@/components/motion/Counter";
 import { Reveal } from "@/components/motion/Reveal";
 import { SplitReveal } from "@/components/motion/SplitReveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
@@ -39,7 +40,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="container-x pb-12 pt-[calc(var(--header-h)+6vh)] md:pb-16 md:pt-[calc(var(--header-h)+10vh)]">
+      <section className="container-x section-b-tight pt-[calc(var(--header-h)+6vh)] md:pt-[calc(var(--header-h)+10vh)]">
         <SplitReveal as="p" className="label mb-8" type="words" immediate stagger={0.04}>
           {project.tags.join(" · ")}
         </SplitReveal>
@@ -73,7 +74,7 @@ export default async function ProjectPage({ params }: PageProps) {
         />
       </section>
 
-      <section className="container-x py-16 md:py-24" aria-labelledby="project-meta">
+      <section className="container-x section" aria-labelledby="project-meta">
         <h2 id="project-meta" className="sr-only">
           Информация о проекте
         </h2>
@@ -97,13 +98,15 @@ export default async function ProjectPage({ params }: PageProps) {
         </Reveal>
       </section>
 
-      <div className="container-x flex flex-col gap-16 pb-24 md:gap-24 md:pb-32">
+      <div className="container-x section-b flex flex-col gap-16 md:gap-24">
         {project.blocks.map((block, index) => {
           if (block.type === "text") {
             return (
               <section key={index} className="grid gap-6 md:grid-cols-[1fr_2fr] md:gap-16">
                 {block.title ? (
-                  <h2 className="font-display text-h3">{block.title}</h2>
+                  <SplitReveal as="h2" className="font-display text-h3">
+                    {block.title}
+                  </SplitReveal>
                 ) : (
                   <span aria-hidden="true" />
                 )}
@@ -116,7 +119,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
           if (block.type === "image") {
             return (
-              <figure key={index} className={block.wide ? "" : "md:w-2/3"}>
+              <Reveal key={index} as="figure" className={block.wide ? "" : "md:w-2/3"}>
                 <ParallaxImage
                   src={block.src}
                   alt={block.alt}
@@ -124,7 +127,7 @@ export default async function ProjectPage({ params }: PageProps) {
                   className={block.wide ? "aspect-[16/9] w-full" : "aspect-[4/5] w-full"}
                 />
                 <figcaption className="label mt-4">{block.alt}</figcaption>
-              </figure>
+              </Reveal>
             );
           }
 
@@ -151,7 +154,9 @@ export default async function ProjectPage({ params }: PageProps) {
               {block.items.map((item) => (
                 <div key={item.label}>
                   <dt className="label">{item.label}</dt>
-                  <dd className="mt-3 font-display text-h2 leading-none">{item.value}</dd>
+                  <dd className="mt-3">
+                    <Counter value={item.value} className="font-display text-h2 leading-none" />
+                  </dd>
                 </div>
               ))}
             </Reveal>
@@ -159,7 +164,7 @@ export default async function ProjectPage({ params }: PageProps) {
         })}
       </div>
 
-      <section className="container-x border-t border-line py-16 md:py-24" aria-labelledby="next-project">
+      <section className="container-x section border-t border-line" aria-labelledby="next-project">
         <span className="label">Следующий проект</span>
         <h2 id="next-project" className="mt-4">
           <MagneticLink strength={0.2}>

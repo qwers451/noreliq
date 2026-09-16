@@ -15,6 +15,17 @@ type ParallaxImageProps = {
   priority?: boolean;
   /** Насколько сильно картинка «отстаёт» от скролла, в процентах высоты. */
   amount?: number;
+  /**
+   * Классы для слоя между рамкой и картинкой — сюда вешается hover-зум.
+   * Отдельный слой нужен потому, что на сам <img> GSAP пишет inline-трансформ
+   * параллакса, и CSS-трансформ с него бы не сработал.
+   */
+  innerClassName?: string;
+  /**
+   * cover — обложки: картинка кадрируется, лёгкий зум прячет края при сдвиге.
+   * contain — логотип-водяной знак: кадрировать его нельзя.
+   */
+  fit?: "cover" | "contain";
 };
 
 /** Обложка с лёгким параллаксом по скроллу. Без движения — обычная картинка. */
@@ -25,6 +36,8 @@ export function ParallaxImage({
   sizes,
   priority = false,
   amount = 12,
+  innerClassName,
+  fit = "cover",
 }: ParallaxImageProps) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -57,15 +70,26 @@ export function ParallaxImage({
   }, [reduced, amount]);
 
   return (
-    <div ref={ref} className={clsx("relative overflow-hidden bg-bg-alt", className)}>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={sizes}
-        priority={priority}
-        className="scale-110 object-cover"
-      />
+    <div
+      ref={ref}
+      className={clsx(
+        "relative overflow-hidden",
+        fit === "cover" && "bg-bg-alt",
+        className,
+      )}
+    >
+      <div className={clsx("absolute inset-0", innerClassName)}>
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          priority={priority}
+          className={
+            fit === "cover" ? "scale-110 object-cover" : "object-contain"
+          }
+        />
+      </div>
     </div>
   );
 }

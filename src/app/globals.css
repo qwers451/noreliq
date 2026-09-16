@@ -38,7 +38,12 @@
 
   /* Сетка */
   --gutter: clamp(1.25rem, 5vw, 5rem);
-  --header-h: 5rem;
+  --header-h: 5.5rem;
+
+  /* Единый вертикальный ритм. Секция несёт свой нижний отступ,
+     последняя на странице — не несёт: отбивку даёт футер. */
+  --section-y: clamp(5rem, 10vw, 9rem);
+  --section-y-tight: clamp(3.5rem, 6vw, 5.5rem);
 }
 
 @layer base {
@@ -79,12 +84,13 @@
     border-radius: 2px;
   }
 
+  /* Вес 700 — начертание логотипа заметно жирнее обычного гротеска. */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 0.95;
     text-wrap: balance;
@@ -94,6 +100,33 @@
 @layer components {
   .container-x {
     padding-inline: var(--gutter);
+  }
+
+  /* Вертикальный ритм. Отступ несёт сама секция, отбивка сверху приходит
+     от предыдущей — так между блоками не складываются двойные поля. */
+  .section {
+    padding-block: var(--section-y);
+  }
+  .section-t {
+    padding-top: var(--section-y);
+  }
+  .section-b {
+    padding-bottom: var(--section-y);
+  }
+  .section-b-tight {
+    padding-bottom: var(--section-y-tight);
+  }
+
+  /* Дисплейное начертание всегда жирное — как в логотипе. Наследование
+     закрывает заголовки, это правило — отдельные span/a с .font-display. */
+  .font-display {
+    font-weight: 700;
+  }
+
+  /* У жирного начертания крупные размеры визуально разрежаются. */
+  .text-hero,
+  .text-display {
+    letter-spacing: -0.04em;
   }
 
   .label {
@@ -128,6 +161,12 @@
     transform: scaleX(1);
     transform-origin: left;
   }
+  /* Активный раздел подчёркнут фирменным лаймом — на заливке он читается,
+     в отличие от использования того же цвета для текста. */
+  .link-mask[data-active="true"]::after {
+    height: 2px;
+    background: var(--color-accent);
+  }
 
   /* Плашка фирменного лайма: тёмный текст поверх — контраст ~9:1. */
   .btn-accent {
@@ -149,14 +188,21 @@
     filter: brightness(1.05);
   }
 
-  /* Слово с фирменной заливкой в крупных заголовках. */
+  /* Слово с фирменной заливкой в крупных заголовках.
+     Заливка вынесена в ::before со z-index:-1: при межстрочном 0.85 фон
+     инлайн-элемента перекрывал бы низ букв предыдущей строки.
+     Родителю нужен isolate, иначе подложка уедет за фон страницы. */
   .accent-fill {
-    background: var(--color-accent);
+    position: relative;
     color: var(--color-fg);
     padding-inline: 0.12em;
-    padding-block: 0.02em;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+  }
+  .accent-fill::before {
+    content: "";
+    position: absolute;
+    inset: -0.02em 0;
+    background: var(--color-accent);
+    z-index: -1;
   }
 
   .rule {
