@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
-import { MagneticLink } from "@/components/motion/MagneticLink";
 import { PageHero } from "@/components/ui/PageHero";
 import { site } from "@/content/site";
 
@@ -29,33 +27,29 @@ export default function ContactsPage() {
 
         <Reveal className="border-t border-line pt-10">
           <div>
-            <MagneticLink strength={0.15}>
-              <a
-                href={`mailto:${site.email}`}
-                className="link-mask block break-words font-display text-[length:clamp(1.75rem,6.5vw,4.5rem)] leading-none hover:text-accent-ink"
-              >
-                {site.email}
-              </a>
-            </MagneticLink>
+            <a
+              href={`mailto:${site.email}`}
+              className="link-mask block break-words font-display text-[length:clamp(1.75rem,6.5vw,4.5rem)] leading-[1.1] hover:text-accent-ink"
+            >
+              {site.email}
+            </a>
           </div>
 
           <div className="mt-8">
-            <MagneticLink strength={0.15}>
-              <a
-                href={`tel:${site.phoneHref}`}
-                className="link-mask block font-display text-[length:clamp(1.5rem,4.5vw,3.25rem)] leading-none text-muted hover:text-fg"
-              >
-                {site.phone}
-              </a>
-            </MagneticLink>
+            <a
+              href={`tel:${site.phoneHref}`}
+              className="link-mask block font-display text-[length:clamp(1.5rem,4.5vw,3.25rem)] leading-[1.1] text-muted hover:text-fg"
+            >
+              {site.phone}
+            </a>
           </div>
         </Reveal>
       </section>
 
       <section className="container-x section-b" aria-labelledby="socials">
-        <SplitReveal as="h2" id="socials" className="label" type="words" stagger={0.04}>
+        <Reveal as="h2" id="socials" className="label">
           Соцсети
-        </SplitReveal>
+        </Reveal>
 
         <Reveal as="ul" className="mt-6 border-t border-line" stagger={0.08} y={24}>
           {site.socials.map((social) => (
@@ -64,13 +58,11 @@ export default function ContactsPage() {
                 href={social.href}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="group flex items-center justify-between gap-6 border-b border-line py-6"
+                className="group grid grid-cols-[1fr_auto] items-baseline gap-x-6 gap-y-1 border-b border-line py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_1.5rem]"
               >
-                <span className="font-display text-h3 transition-transform duration-500 ease-[var(--ease-out-expo)] md:group-hover:translate-x-3">
-                  {social.label}
-                </span>
-                <span className="text-muted">{social.handle}</span>
-                <span aria-hidden="true" className="text-accent-ink">
+                <span className="font-display text-h3">{social.label}</span>
+                <span className="text-muted md:order-none order-last">{social.handle}</span>
+                <span aria-hidden="true" className="text-accent-ink md:text-right">
                   ↗
                 </span>
               </a>
@@ -81,9 +73,9 @@ export default function ContactsPage() {
 
       {/* Место под форму обратной связи: появится здесь, вёрстку менять не придётся. */}
       <section className="container-x" aria-labelledby="details">
-        <SplitReveal as="h2" id="details" className="label" type="words" stagger={0.04}>
+        <Reveal as="h2" id="details" className="label">
           Реквизиты и адрес
-        </SplitReveal>
+        </Reveal>
 
         <Reveal
           as="dl"

@@ -22,14 +22,14 @@ type RevealProps = {
   immediate?: boolean;
 };
 
-/** Ревил для нетекстовых блоков: карточек, изображений, списков. */
+/** Единственный примитив появления: мягкий сдвиг вверх с проявлением. */
 export function Reveal({
   children,
   as: Tag = "div",
   id,
   className,
   delay = 0,
-  y = 40,
+  y = 24,
   stagger,
   start = "top 95%",
   immediate = false,
@@ -42,15 +42,18 @@ export function Reveal({
     const el = ref.current;
     if (!el) return;
 
-    const targets = stagger ? Array.from(el.children) : el;
+    // Со stagger анимируем прямых потомков, но если их нет (блок с голым
+    // текстом) — анимируем сам блок, иначе анимация просто не состоялась бы.
+    const children = Array.from(el.children);
+    const targets = stagger && children.length > 0 ? children : el;
 
     const ctx = gsap.context(() => {
       gsap.set(el, { autoAlpha: 1 });
       gsap.from(targets, {
         y,
         autoAlpha: 0,
-        duration: 0.9,
-        ease: "expo.out",
+        duration: 0.7,
+        ease: "power3.out",
         delay,
         stagger,
         scrollTrigger: immediate ? undefined : { trigger: el, start, once: true },

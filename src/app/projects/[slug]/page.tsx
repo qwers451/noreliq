@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 
 import { Counter } from "@/components/motion/Counter";
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
-import { MagneticLink } from "@/components/motion/MagneticLink";
 import { ParallaxImage } from "@/components/ui/ParallaxImage";
 import { getNextProject, getProject, projects } from "@/content/projects";
 
@@ -41,26 +39,26 @@ export default async function ProjectPage({ params }: PageProps) {
   return (
     <>
       <section className="container-x section-b-tight pt-[calc(var(--header-h)+6vh)] md:pt-[calc(var(--header-h)+10vh)]">
-        <SplitReveal as="p" className="label mb-8" type="words" immediate stagger={0.04}>
+        <Reveal as="p" className="label mb-8" immediate>
           {project.tags.join(" · ")}
-        </SplitReveal>
+        </Reveal>
 
-        <SplitReveal
+        <Reveal
           as="h1"
           className="font-display text-display leading-[0.9]"
           immediate
         >
           {project.title}
-        </SplitReveal>
+        </Reveal>
 
-        <SplitReveal
+        <Reveal
           as="p"
           className="mt-10 max-w-[52ch] text-lead leading-snug text-muted"
           delay={0.15}
           immediate
         >
           {project.summary}
-        </SplitReveal>
+        </Reveal>
       </section>
 
       <section className="container-x" aria-label="Обложка проекта">
@@ -104,15 +102,15 @@ export default async function ProjectPage({ params }: PageProps) {
             return (
               <section key={index} className="grid gap-6 md:grid-cols-[1fr_2fr] md:gap-16">
                 {block.title ? (
-                  <SplitReveal as="h2" className="font-display text-h3">
+                  <Reveal as="h2" className="font-display text-h3">
                     {block.title}
-                  </SplitReveal>
+                  </Reveal>
                 ) : (
                   <span aria-hidden="true" />
                 )}
-                <SplitReveal as="p" className="max-w-[62ch] text-lead leading-snug">
+                <Reveal as="p" className="max-w-[62ch] text-lead leading-snug">
                   {block.body}
-                </SplitReveal>
+                </Reveal>
               </section>
             );
           }
@@ -167,14 +165,12 @@ export default async function ProjectPage({ params }: PageProps) {
       <section className="container-x section border-t border-line" aria-labelledby="next-project">
         <span className="label">Следующий проект</span>
         <h2 id="next-project" className="mt-4">
-          <MagneticLink strength={0.2}>
-            <TransitionLink
-              href={`/projects/${next.slug}`}
-              className="link-mask font-display text-display leading-none"
-            >
-              {next.title}
-            </TransitionLink>
-          </MagneticLink>
+          <TransitionLink
+            href={`/projects/${next.slug}`}
+            className="link-mask font-display text-display leading-[1.02]"
+          >
+            {next.title}
+          </TransitionLink>
         </h2>
       </section>
     </>

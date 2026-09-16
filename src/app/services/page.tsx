@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
-import { MagneticLink } from "@/components/motion/MagneticLink";
 import { PageHero } from "@/components/ui/PageHero";
 import { process, services } from "@/content/services";
 
@@ -69,12 +67,10 @@ export default function ServicesPage() {
                     {formatPrice(service.price)}
                   </span>
                 </div>
-                <MagneticLink strength={0.2}>
-                  <TransitionLink href="/contacts" className="btn-accent">
-                    Обсудить
-                    <span aria-hidden="true">→</span>
-                  </TransitionLink>
-                </MagneticLink>
+                <TransitionLink href="/contacts" className="btn-accent">
+                  Обсудить
+                  <span aria-hidden="true">→</span>
+                </TransitionLink>
               </div>
             </article>
           ))}
@@ -82,9 +78,9 @@ export default function ServicesPage() {
       </section>
 
       <section className="container-x" aria-labelledby="process">
-        <SplitReveal as="h2" id="process" className="text-h2">
+        <Reveal as="h2" id="process" className="text-h2">
           Как идёт работа
-        </SplitReveal>
+        </Reveal>
 
         <Reveal as="ol" className="mt-12 border-t border-line" stagger={0.1} y={30}>
           {process.map((step) => (

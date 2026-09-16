@@ -15,6 +15,44 @@ npm run lint    # ESLint
 node scripts/generate-placeholders.mjs   # перегенерировать SVG-плейсхолдеры в public/placeholders
 ```
 
+## Публикация на GitHub Pages
+
+Демо-стенд собирается и выкладывается автоматически: пуш в `main` запускает
+`.github/workflows/deploy.yml`. Один раз нужно включить публикацию в настройках
+репозитория: **Settings → Pages → Source → GitHub Actions**.
+
+Адрес: `https://<owner>.github.io/<repo>/`
+
+Статический режим включается **только** переменными окружения, которые выставляет
+workflow, — локальные `npm run dev` и `npm run build` работают как раньше, под будущий
+свой домен и сервер:
+
+| Переменная | Зачем |
+|---|---|
+| `GITHUB_PAGES=true` | включает `output: "export"`, `trailingSlash` и свой загрузчик картинок |
+| `NEXT_PUBLIC_BASE_PATH` | префикс пути (`/noreliq`), без него на Pages отвалятся стили и картинки |
+| `NEXT_PUBLIC_SITE_URL` | адрес для `sitemap.xml`, canonical и OG |
+
+Собрать экспорт локально (результат — папка `out/`):
+
+```bash
+GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/noreliq npm run build
+```
+
+### Переезд на свой домен
+
+Убрать из workflow `NEXT_PUBLIC_BASE_PATH` (и `GITHUB_PAGES`, если хостинг
+будет с сервером) — префикс исчезнет сам, правки кода не нужны. Ссылки, картинки
+и метаданные собраны относительно этих переменных.
+
+Особенности статической сборки, заложенные в проект:
+
+- `dynamic = "force-static"` в `sitemap.ts`, `robots.ts`, `opengraph-image.tsx` — без этого экспорт падает;
+- свой `image-loader.ts`: с `images.unoptimized` Next не подставляет `basePath` и картинки отдают 404;
+- префетч ссылок отключён на статике — Next кладёт RSC-пейлоады не туда, откуда их просит роутер;
+- `public/.nojekyll` — иначе Pages выкидывает папку `_next`;
+- демо закрыто от индексации в `robots.txt`, чтобы не конкурировать с основным доменом.
+
 ## Структура
 
 ```

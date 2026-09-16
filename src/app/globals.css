@@ -137,11 +137,11 @@
     font-family: var(--font-sans);
   }
 
-  /* Ссылка с подчёркиванием-маской */
+  /* Ссылка с подчёркиванием.
+     Без overflow: hidden — иначе он срезает выносные элементы букв. */
   .link-mask {
     position: relative;
     display: inline-block;
-    overflow: hidden;
   }
   .link-mask::after {
     content: "";
@@ -188,19 +188,20 @@
     filter: brightness(1.05);
   }
 
-  /* Слово с фирменной заливкой в крупных заголовках.
-     Заливка вынесена в ::before со z-index:-1: при межстрочном 0.85 фон
-     инлайн-элемента перекрывал бы низ букв предыдущей строки.
+  /* Фирменный акцент на слове в крупном заголовке — не заливка целиком,
+     а полоса под словом: она не спорит с буквами и не растёт вместе с кеглем.
      Родителю нужен isolate, иначе подложка уедет за фон страницы. */
   .accent-fill {
     position: relative;
     color: var(--color-fg);
-    padding-inline: 0.12em;
   }
   .accent-fill::before {
     content: "";
     position: absolute;
-    inset: -0.02em 0;
+    left: -0.02em;
+    right: -0.02em;
+    bottom: 0.06em;
+    height: 0.16em;
     background: var(--color-accent);
     z-index: -1;
   }
@@ -220,11 +221,6 @@
   }
   .motion-ok [data-anim="cover"] {
     visibility: visible;
-  }
-
-  .line-mask {
-    overflow: hidden;
-    display: block;
   }
 }
 
@@ -280,10 +276,5 @@
     to {
       transform: translateX(-100%);
     }
-  }
-
-  /* Маски строк, которые создаёт SplitText. */
-  .split-line {
-    will-change: transform;
   }
 }

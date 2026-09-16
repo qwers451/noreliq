@@ -4,6 +4,9 @@ import { nav } from "@/content/nav";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 
+// Статический экспорт требует явной пометки для метаданных-маршрутов.
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 

@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Counter } from "@/components/motion/Counter";
 import { Disclosure } from "@/components/motion/Disclosure";
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
 import { Marquee } from "@/components/ui/Marquee";
 import { PageHero } from "@/components/ui/PageHero";
 import { about } from "@/content/about";
@@ -27,9 +26,9 @@ export default function AboutPage() {
         </h2>
         <div className="grid gap-10 md:grid-cols-2">
           {about.body.map((paragraph) => (
-            <SplitReveal key={paragraph} as="p" className="text-lead leading-snug">
+            <Reveal key={paragraph} as="p" className="text-lead leading-snug">
               {paragraph}
-            </SplitReveal>
+            </Reveal>
           ))}
         </div>
 
@@ -47,9 +46,9 @@ export default function AboutPage() {
       </section>
 
       <section className="container-x section-b" aria-labelledby="principles">
-        <SplitReveal as="h2" id="principles" className="text-h2">
+        <Reveal as="h2" id="principles" className="text-h2">
           Принципы
-        </SplitReveal>
+        </Reveal>
 
         <Reveal className="mt-12 border-t border-line" stagger={0.1}>
           {about.principles.map((principle) => (
@@ -73,12 +72,12 @@ export default function AboutPage() {
 
       <section className="container-x" aria-labelledby="team">
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <SplitReveal as="h2" id="team" className="text-h2">
+          <Reveal as="h2" id="team" className="text-h2">
             Команда
-          </SplitReveal>
-          <SplitReveal as="p" className="label" type="words" stagger={0.04}>
+          </Reveal>
+          <Reveal as="p" className="label">
             {site.city} · {site.timezone}
-          </SplitReveal>
+          </Reveal>
         </div>
 
         <Reveal className="mt-14 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.08}>

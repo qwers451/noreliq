@@ -1,8 +1,6 @@
 import { Reveal } from "@/components/motion/Reveal";
-import { SplitReveal } from "@/components/motion/SplitReveal";
+import { ScrollTopLink } from "@/components/motion/ScrollTopLink";
 import { TransitionLink } from "@/components/motion/TransitionLink";
-import { MagneticLink } from "@/components/motion/MagneticLink";
-import { ParallaxImage } from "@/components/ui/ParallaxImage";
 import { nav } from "@/content/nav";
 import { site } from "@/content/site";
 
@@ -13,17 +11,17 @@ export function Footer() {
     // Верхний отступ футера — единственная отбивка от последней секции:
     // у неё самой нижнего padding нет, иначе поля складывались бы.
     <footer className="container-x section-t border-t border-line pb-10">
-      <SplitReveal as="p" className="label mb-6">
+      <Reveal as="p" className="label mb-6">
         Свободны для новых проектов
-      </SplitReveal>
+      </Reveal>
 
       <TransitionLink href="/contacts" className="group block">
-        <SplitReveal
+        <Reveal
           as="span"
           className="block font-display text-display leading-[0.9] transition-colors duration-300 group-hover:text-accent-ink"
         >
           Обсудим проект
-        </SplitReveal>
+        </Reveal>
       </TransitionLink>
 
       <Reveal className="mt-20 grid gap-10 md:grid-cols-4" stagger={0.08} y={24}>
@@ -66,26 +64,9 @@ export function Footer() {
           <p className="text-muted">
             {site.city}, {site.timezone}
           </p>
-          <MagneticLink strength={0.2} className="w-fit">
-            <a href="#top" className="link-mask">
-              Наверх
-            </a>
-          </MagneticLink>
+          <ScrollTopLink />
         </div>
       </Reveal>
-
-      {/* Водяной знак: параллакс по скроллу, тот же компонент, что у обложек. */}
-      <div className="mt-20 opacity-[0.08]" aria-hidden="true">
-        <ParallaxImage
-          src="/brand/logo-name.png"
-          alt=""
-          sizes="(max-width: 768px) 90vw, 70vw"
-          // Рамка выше самого знака: остаётся запас, чтобы сдвиг не обрезал логотип.
-          className="aspect-[2200/860] w-full"
-          amount={14}
-          fit="contain"
-        />
-      </div>
 
       {/* start=top bottom обязателен: строка стоит в последних пикселях страницы
           и до «top 95%» не доезжает никогда — с дефолтом она осталась бы скрытой. */}

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { TransitionLink } from "@/components/motion/TransitionLink";
-import { MagneticLink } from "@/components/motion/MagneticLink";
 import { nav } from "@/content/nav";
 
 export const metadata: Metadata = {
@@ -23,11 +22,9 @@ export default function NotFound() {
       <ul className="mt-10 flex flex-wrap gap-6">
         {nav.map((item) => (
           <li key={item.href}>
-            <MagneticLink strength={0.2}>
-              <TransitionLink href={item.href} className="link-mask text-h3">
-                {item.label}
-              </TransitionLink>
-            </MagneticLink>
+            <TransitionLink href={item.href} className="link-mask text-h3">
+              {item.label}
+            </TransitionLink>
           </li>
         ))}
       </ul>

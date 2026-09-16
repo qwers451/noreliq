@@ -15,6 +15,14 @@ type TransitionLinkProps = Omit<LinkProps, "href"> &
  * Внутренняя ссылка, которая сначала проигрывает шторку перехода,
  * а уже потом меняет маршрут. Внешние ссылки ведут себя как обычные <a>.
  */
+/**
+ * В статическом экспорте Next не кладёт RSC-пейлоады туда, откуда их просит
+ * роутер, — префетч отвечает 404 на каждое наведение. Переход при этом
+ * отрабатывает штатно, поэтому на статике префетч просто выключаем.
+ * На обычной серверной сборке он остаётся включённым.
+ */
+const PREFETCH = process.env.NEXT_PUBLIC_BASE_PATH ? false : undefined;
+
 export function TransitionLink({ href, children, onClick, ...rest }: TransitionLinkProps) {
   const { navigate } = useTransitionRouter();
   const isInternal = href.startsWith("/");
@@ -31,7 +39,7 @@ export function TransitionLink({ href, children, onClick, ...rest }: TransitionL
   };
 
   return (
-    <Link href={href} onClick={handleClick} {...rest}>
+    <Link href={href} prefetch={PREFETCH} onClick={handleClick} {...rest}>
       {children}
     </Link>
   );

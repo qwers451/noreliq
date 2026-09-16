@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import { SplitReveal } from "@/components/motion/SplitReveal";
+import { Reveal } from "@/components/motion/Reveal";
 
 type PageHeroProps = {
   label: string;
@@ -18,28 +18,28 @@ export function PageHero({ label, title, lead, titleClassName }: PageHeroProps) 
 
   return (
     <section className="container-x section-b-tight pt-[calc(var(--header-h)+6vh)] md:pt-[calc(var(--header-h)+12vh)]">
-      <SplitReveal as="p" className="label mb-8" type="words" immediate stagger={0.04}>
+      <Reveal as="p" className="label mb-8" immediate>
         <span className="text-accent-ink">{index}</span>
         {name ? ` / ${name}` : null}
-      </SplitReveal>
+      </Reveal>
 
-      <SplitReveal
+      <Reveal
         as="h1"
         className={clsx("font-display text-display leading-[0.9]", titleClassName)}
         immediate
       >
         {title}
-      </SplitReveal>
+      </Reveal>
 
       {lead ? (
-        <SplitReveal
+        <Reveal
           as="p"
           className="mt-10 max-w-[46ch] text-lead leading-snug text-muted md:mt-14"
           delay={0.15}
           immediate
         >
           {lead}
-        </SplitReveal>
+        </Reveal>
       ) : null}
     </section>
   );

@@ -5,18 +5,20 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
-import { MagneticLink } from "@/components/motion/MagneticLink";
 import { TransitionLink } from "@/components/motion/TransitionLink";
 import { homeHref, nav } from "@/content/nav";
 import { site } from "@/content/site";
+
+/** Ниже этой отметки шапка начинает прятаться — чтобы не мигала у самого верха. */
+const HIDE_AFTER = 160;
 
 export function Header() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   /* Блокируем скролл под открытым меню. */
   useEffect(() => {
@@ -24,24 +26,40 @@ export function Header() {
     return () => document.documentElement.classList.remove("is-menu-open");
   }, [open]);
 
-  /* Каскад пунктов при открытии. */
+  /* Скролл вниз — шапка уезжает, вверх — возвращается. */
   useEffect(() => {
-    if (!open || reduced !== false) return;
-    const el = menuRef.current;
+    const el = headerRef.current;
     if (!el) return;
 
-    const ctx = gsap.context(() => {
-      gsap.from(el.querySelectorAll("[data-menu-item]"), {
-        yPercent: 110,
-        autoAlpha: 0,
-        duration: 0.7,
-        ease: "expo.out",
-        stagger: 0.06,
-        delay: 0.1,
-      });
-    }, el);
+    // При открытом меню шапка обязана оставаться на месте: в ней кнопка «Закрыть».
+    if (open) {
+      gsap.set(el, { yPercent: 0 });
+      return;
+    }
 
-    return () => ctx.revert();
+    if (reduced !== false) return;
+
+    let hidden = false;
+    const setHidden = (next: boolean) => {
+      if (next === hidden) return;
+      hidden = next;
+      gsap.to(el, { yPercent: next ? -100 : 0, duration: 0.4, ease: "power3.out" });
+    };
+
+    // Через ScrollTrigger, а не через window.scroll: он уже синхронизирован
+    // с Lenis, поэтому программная прокрутка не оставляет шапку спрятанной.
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: (self) => {
+        setHidden(self.direction === 1 && self.scroll() > HIDE_AFTER);
+      },
+    });
+
+    return () => {
+      trigger.kill();
+      gsap.set(el, { yPercent: 0 });
+    };
   }, [open, reduced]);
 
   useEffect(() => {
@@ -59,7 +77,7 @@ export function Header() {
     href === homeHref ? pathname === href : pathname.startsWith(href);
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
+    <header ref={headerRef} className="pointer-events-none fixed inset-x-0 top-0 z-50">
       <div
         className={clsx(
           "container-x pointer-events-auto flex h-[var(--header-h)] items-center justify-between transition-colors duration-300",
@@ -71,18 +89,16 @@ export function Header() {
           className="block"
           aria-label={`${site.name} — на главную`}
         >
-          <MagneticLink strength={0.25}>
-            {/* На тёмном фоне открытого меню показываем светлую версию знака. */}
-            <Image
-              src={open ? "/brand/logo-full-light.png" : "/brand/logo-full.png"}
-              alt={site.name}
-              width={1991}
-              height={790}
-              sizes="(max-width: 768px) 96px, 120px"
-              priority
-              className="h-9 w-auto md:h-11"
-            />
-          </MagneticLink>
+          {/* На тёмном фоне открытого меню показываем светлую версию знака. */}
+          <Image
+            src={open ? "/brand/logo-full-light.png" : "/brand/logo-full.png"}
+            alt={site.name}
+            width={1991}
+            height={790}
+            sizes="(max-width: 768px) 96px, 120px"
+            priority
+            className="h-9 w-auto md:h-11"
+          />
         </TransitionLink>
 
         <nav aria-label="Основная навигация" className="hidden md:block">
@@ -95,7 +111,7 @@ export function Header() {
                   aria-current={isActive(item.href) ? "page" : undefined}
                   className="link-mask text-sm"
                 >
-                  <MagneticLink strength={0.25}>{item.label}</MagneticLink>
+                  {item.label}
                 </TransitionLink>
               </li>
             ))}
@@ -127,19 +143,17 @@ export function Header() {
 
       <div
         id="mobile-menu"
-        ref={menuRef}
         hidden={!open}
         className="pointer-events-auto fixed inset-0 z-[-1] flex flex-col justify-between bg-fg px-[var(--gutter)] pb-10 pt-[var(--header-h)] text-inverse md:hidden"
       >
         <nav aria-label="Мобильная навигация" className="mt-12">
           <ul className="flex flex-col gap-2">
             {nav.map((item) => (
-              <li key={item.href} className="overflow-hidden">
+              <li key={item.href}>
                 <TransitionLink
                   href={item.href}
                   onClick={closeMenu}
-                  data-menu-item
-                  className="flex items-baseline gap-4 py-2 font-display text-[length:clamp(2.5rem,12vw,4rem)] leading-none"
+                  className="flex items-baseline gap-4 py-2 font-display text-[length:clamp(2.5rem,12vw,4rem)] leading-[1.05]"
                 >
                   <span className="text-xs tracking-[0.16em] text-inverse/50">{item.index}</span>
                   {item.label}
@@ -149,7 +163,7 @@ export function Header() {
           </ul>
         </nav>
 
-        <div data-menu-item className="flex flex-col gap-1 text-sm text-inverse/70">
+        <div className="flex flex-col gap-1 text-sm text-inverse/70">
           <a href={`mailto:${site.email}`} onClick={closeMenu} className="link-mask">
             {site.email}
           </a>
