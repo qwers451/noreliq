@@ -26,43 +26,48 @@ export default function ServicesPage() {
           Услуги
         </h2>
 
-        <Reveal className="flex flex-col border-t border-line" stagger={0.1}>
+        <Reveal className="grid gap-6 md:grid-cols-2" stagger={0.1}>
           {services.map((category) => (
             <article
               key={category.id}
-              className="grid gap-6 border-b border-line py-12 md:grid-cols-[12rem_1fr] md:gap-12"
+              className="flex flex-col border border-line p-7 transition-colors duration-500 hover:border-fg md:p-9"
             >
-              <div>
-                <span className="label block">
-                  {category.index} · {category.code}
-                </span>
-                <h3 className="mt-3 font-display text-h3">{category.title}</h3>
+              {/* Код рубрики — строкой над заголовком, а не справа от него:
+                  «AI AUTOMATION» с разрядкой не оставляет заголовку места
+                  в узкой колонке и выталкивает его за край карточки. */}
+              <span className="label block">
+                {category.index} · {category.code}
+              </span>
+              <h3 className="mt-3 font-display text-h3">{category.title}</h3>
+
+              <div className="mt-4 flex flex-col gap-3 text-muted">
+                {category.description.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
               </div>
 
-              <div>
-                {category.description.map((paragraph) => (
-                  <p key={paragraph} className="max-w-[62ch] text-muted [&:not(:first-child)]:mt-4">
-                    {paragraph}
-                  </p>
+              {/* Пара «тариф — цена» разъезжается по краям только там, где
+                  обе строки помещаются рядом. В двухколоночной сетке до xl
+                  карточка слишком узкая: название ломалось бы на две строки,
+                  а цена повисала у первой — поэтому там цена идёт под ним. */}
+              <ul className="mt-8 flex flex-col gap-3 border-t border-line pt-6">
+                {category.tiers.map((tier) => (
+                  <li
+                    key={tier.title}
+                    className="flex flex-col gap-x-4 xl:flex-row xl:items-baseline xl:justify-between"
+                  >
+                    <span>{tier.title}</span>
+                    <span className="shrink-0 font-display">{tier.price}</span>
+                  </li>
                 ))}
+              </ul>
 
-                <ul className="mt-8 flex flex-col gap-2 border-t border-line pt-6">
-                  {category.tiers.map((tier) => (
-                    <li
-                      key={tier.title}
-                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"
-                    >
-                      <span>{tier.title}</span>
-                      <span className="font-display text-h3">{tier.price}</span>
-                    </li>
-                  ))}
-                </ul>
+              {category.footnote && (
+                <p className="mt-6 text-sm leading-normal text-muted">{category.footnote}</p>
+              )}
 
-                {category.footnote && (
-                  <p className="mt-6 text-sm text-muted">{category.footnote}</p>
-                )}
-
-                <TransitionLink href="/contacts" className="btn-accent mt-8 inline-flex">
+              <div className="mt-auto pt-8">
+                <TransitionLink href="/contacts" className="btn-accent">
                   Обсудить
                   <span aria-hidden="true">→</span>
                 </TransitionLink>
