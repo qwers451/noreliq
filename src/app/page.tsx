@@ -5,7 +5,7 @@ import { TransitionLink } from "@/components/motion/TransitionLink";
 import { Marquee } from "@/components/ui/Marquee";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { about } from "@/content/about";
-import { projects } from "@/content/projects";
+import { featuredProjects, projects } from "@/content/projects";
 import { services } from "@/content/services";
 import { site } from "@/content/site";
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const featured = projects.slice(0, 3);
+  const featured = featuredProjects;
 
   return (
     <>
@@ -104,16 +104,16 @@ export default function HomePage() {
           {featured.map((project, index) => (
             <Reveal
               key={project.slug}
-              className={index === 2 ? "md:col-span-2" : undefined}
-              delay={index === 1 ? 0.1 : 0}
+              className={index === 0 ? "md:col-span-2" : undefined}
+              delay={index === 2 ? 0.1 : 0}
             >
               <ProjectCard
                 project={project}
                 index={index}
                 priority={index === 0}
-                wide={index === 2}
+                wide={index === 0}
                 sizes={
-                  index === 2
+                  index === 0
                     ? "(max-width: 768px) 100vw, 90vw"
                     : "(max-width: 768px) 100vw, 45vw"
                 }

@@ -117,6 +117,25 @@ export default async function ProjectPage({ params }: PageProps) {
           }
 
           if (block.type === "image") {
+            // Снимок интерфейса: своя пропорция, без кадрирования и параллакса —
+            // любое масштабирование съедает мелкий текст на скриншоте.
+            if (block.contain && block.width && block.height) {
+              return (
+                <Reveal key={index} as="figure">
+                  <Image
+                    src={block.src}
+                    alt={block.alt}
+                    width={block.width}
+                    height={block.height}
+                    sizes="(max-width: 768px) 100vw, 90vw"
+                    quality={92}
+                    className="h-auto w-full rounded-md border border-line"
+                  />
+                  <figcaption className="label mt-4">{block.alt}</figcaption>
+                </Reveal>
+              );
+            }
+
             return (
               <Reveal key={index} as="figure" className={block.wide || block.contain ? "" : "md:w-2/3"}>
                 <ParallaxImage
@@ -156,6 +175,7 @@ export default async function ProjectPage({ params }: PageProps) {
                       width={786}
                       height={1704}
                       sizes="(max-width: 768px) 45vw, 30vw"
+                      quality={92}
                       className="w-full rounded-[1.5rem] border border-line md:rounded-[2rem]"
                     />
                     <p className="label mt-4">{item.caption}</p>

@@ -26,6 +26,11 @@ type ParallaxImageProps = {
    * contain — логотип-водяной знак: кадрировать его нельзя.
    */
   fit?: "cover" | "contain";
+  /**
+   * Качество пережатия next/image. По умолчанию 75 — для снимков
+   * интерфейса с мелким текстом этого мало, поэтому здесь 92.
+   */
+  quality?: number;
 };
 
 /** Обложка с лёгким параллаксом по скроллу. Без движения — обычная картинка. */
@@ -35,9 +40,10 @@ export function ParallaxImage({
   className,
   sizes,
   priority = false,
-  amount = 12,
+  amount = 8,
   innerClassName,
   fit = "cover",
+  quality = 92,
 }: ParallaxImageProps) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -85,8 +91,14 @@ export function ParallaxImage({
           fill
           sizes={sizes}
           priority={priority}
+          quality={quality}
+          // scale-[1.06] вместо 110: запас нужен только чтобы сдвиг
+          // не оголял края, а лишнее увеличение размывает картинку.
+          // will-change удерживает слой в исходном разрешении при трансформе.
           className={
-            fit === "cover" ? "scale-110 object-cover" : "object-contain"
+            fit === "cover"
+              ? "scale-[1.06] object-cover will-change-transform"
+              : "object-contain will-change-transform"
           }
         />
       </div>

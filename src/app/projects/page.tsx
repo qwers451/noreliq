@@ -26,16 +26,16 @@ export default function ProjectsPage() {
           {projects.map((project, index) => (
             <Reveal
               key={project.slug}
-              className={index % 3 === 0 ? "md:col-span-2" : undefined}
+              className={project.size === "wide" ? "md:col-span-2" : undefined}
               delay={index % 2 === 1 ? 0.08 : 0}
             >
               <ProjectCard
                 project={project}
                 index={index}
-                priority={index === 0}
-                wide={index % 3 === 0}
+                priority={index < 2}
+                wide={project.size === "wide"}
                 sizes={
-                  index % 3 === 0
+                  project.size === "wide"
                     ? "(max-width: 768px) 100vw, 90vw"
                     : "(max-width: 768px) 100vw, 45vw"
                 }

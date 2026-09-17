@@ -1,7 +1,18 @@
 export type ProjectBlock =
   | { type: "text"; title?: string; body: string }
-  /** contain — снимок интерфейса показывается целиком, без кадрирования. */
-  | { type: "image"; src: string; alt: string; wide?: boolean; contain?: boolean }
+  /**
+   * contain — снимок интерфейса: показывается целиком, в своей пропорции
+   * и без параллакса, поэтому нужны исходные размеры файла.
+   */
+  | {
+      type: "image";
+      src: string;
+      alt: string;
+      wide?: boolean;
+      contain?: boolean;
+      width?: number;
+      height?: number;
+    }
   /** Ряд экранов приложения: показываются целиком, без кадрирования. */
   | { type: "screens"; items: { src: string; caption: string }[] }
   | { type: "quote"; body: string; author: string }
@@ -13,6 +24,8 @@ export type Project = {
   client: string;
   year: string;
   role: string;
+  /** Размер карточки в сетке: wide занимает обе колонки. */
+  size?: "compact" | "wide";
   tags: string[];
   cover: string;
   summary: string;
@@ -27,6 +40,7 @@ export const projects: Project[] = [
     client: "DevContest",
     year: "2026",
     role: "Дизайн и разработка",
+    size: "compact",
     tags: ["Платформа", "Микросервисы", "ИИ-оценка", "Эскроу"],
     cover: "/projects/devcontest/cover.webp",
     summary:
@@ -41,6 +55,8 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/devcontest/contests.webp",
+        width: 2400,
+        height: 1500,
         contain: true,
         alt: "Список конкурсов с фильтрами по статусу, типу и призовому фонду",
         wide: true,
@@ -54,6 +70,8 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/devcontest/solution.webp",
+        width: 2400,
+        height: 1500,
         contain: true,
         alt: "Карточка решения с оценкой ИИ по каждому требованию техзадания",
         wide: true,
@@ -67,6 +85,8 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/devcontest/wallet.webp",
+        width: 2400,
+        height: 1500,
         contain: true,
         alt: "Кошелёк: баланс, пополнение, история транзакций",
       },
@@ -79,6 +99,8 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/devcontest/create.webp",
+        width: 2400,
+        height: 1500,
         contain: true,
         alt: "Форма создания конкурса с этапами и распределением призового фонда",
       },
@@ -93,11 +115,90 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "court-01",
+    title: "Корт 01",
+    client: "COURT 01",
+    year: "2026",
+    role: "Дизайн и разработка",
+    size: "compact",
+    tags: ["Бронирование", "Клубный сервис", "Веб-приложение"],
+    cover: "/projects/court-01/cover.webp",
+    summary:
+      "Сервис бронирования для клуба настольного тенниса: план зала со столами, живая сетка доступности, запись к тренеру и списание часов с клубного абонемента.",
+    blocks: [
+      {
+        type: "text",
+        title: "Задача",
+        body:
+          "Премиальный клуб принимал брони через администратора в мессенджере: занятость столов держали в голове, тренеров согласовывали отдельно, абонементы считали вручную. Нужен был сервис, в котором резидент сам видит свободное время и бронирует стол за минуту, а клуб перестаёт быть узким местом.",
+      },
+      {
+        type: "image",
+        src: "/projects/court-01/dashboard.webp",
+        width: 2400,
+        height: 3311,
+        alt: "Дашборд резидента: ближайшая бронь, баланс часов и доступность столов",
+        contain: true,
+      },
+      {
+        type: "text",
+        title: "Бронирование по плану зала",
+        body:
+          "Стол выбирают не из списка, а на схеме зала: видно зоны, покрытие, оборудование и то, какой стол занят. К брони сразу добавляются опции — комплект ракеток, робот-подающий, вода — и цена пересчитывается с учётом скидки резидента.",
+      },
+      {
+        type: "image",
+        src: "/projects/court-01/booking.webp",
+        width: 2400,
+        height: 3358,
+        alt: "Бронирование стола: план зала, опции и расчёт стоимости",
+        contain: true,
+      },
+      {
+        type: "text",
+        title: "Сетка доступности",
+        body:
+          "Администратор клуба работает в таймлайне: шесть столов, интервалы от 30 минут, клубные турниры и сервисные окна на одном экране. Отсюда же оформляется быстрая бронь, когда резидент звонит по телефону.",
+      },
+      {
+        type: "image",
+        src: "/projects/court-01/schedule.webp",
+        width: 2400,
+        height: 2630,
+        alt: "Сетка доступности столов на день с клубными событиями",
+        contain: true,
+      },
+      {
+        type: "text",
+        title: "Тренеры",
+        body:
+          "Наставники собраны в каталог с фильтрами по формату, уровню и стилю игры. У каждого — ближайшее свободное окно и стоимость часа, а запись на сессию идёт тем же сценарием, что и бронь стола.",
+      },
+      {
+        type: "image",
+        src: "/projects/court-01/coaches.webp",
+        width: 2400,
+        height: 3160,
+        alt: "Каталог тренеров с фильтрами и конфигуратором тренировки",
+        contain: true,
+      },
+      {
+        type: "stats",
+        items: [
+          { value: "6", label: "столов в живой сетке" },
+          { value: "30", label: "минут — минимальный слот" },
+          { value: "4", label: "ключевых экрана сервиса" },
+        ],
+      },
+    ],
+  },
+  {
     slug: "meet-up",
     title: "Meet Up",
     client: "Meet Up",
     year: "2025",
     role: "Дизайн и разработка",
+    size: "wide",
     tags: ["Веб-приложение", "Карта друзей", "Рестораны", "Бронирование"],
     cover: "/projects/meet-up/cover.webp",
     summary:
@@ -158,6 +259,7 @@ export const projects: Project[] = [
     client: "Atlas Group",
     year: "2025",
     role: "Дизайн, фронтенд",
+    size: "compact",
     tags: ["Платформа", "Дизайн-система"],
     cover: "/placeholders/project-01.svg",
     summary:
@@ -208,6 +310,7 @@ export const projects: Project[] = [
     client: "North Supply",
     year: "2025",
     role: "Дизайн, разработка",
+    size: "compact",
     tags: ["E-commerce", "Витрина"],
     cover: "/placeholders/project-02.svg",
     summary:
@@ -246,158 +349,14 @@ export const projects: Project[] = [
       },
     ],
   },
-  {
-    slug: "meridian-report",
-    title: "Meridian",
-    client: "Meridian Capital",
-    year: "2024",
-    role: "Дизайн, фронтенд",
-    tags: ["Лендинг", "Данные"],
-    cover: "/placeholders/project-03.svg",
-    summary:
-      "Годовой отчёт как интерактивный сайт: данные раскрываются по мере прокрутки, вместо PDF на сто страниц.",
-    blocks: [
-      {
-        type: "text",
-        title: "Задача",
-        body:
-          "Перевести годовой отчёт в формат, который читают с телефона и пересылают коллегам одной ссылкой.",
-      },
-      {
-        type: "image",
-        src: "/placeholders/project-03-a.svg",
-        alt: "Разворот отчёта Meridian",
-        wide: true,
-      },
-      {
-        type: "text",
-        title: "Решение",
-        body:
-          "Разбили отчёт на семь сюжетов. Каждый график появляется по скроллу и объясняет один тезис — без перегруза цифрами.",
-      },
-      {
-        type: "stats",
-        items: [
-          { value: "7", label: "разделов-сюжетов" },
-          { value: "5 мин", label: "среднее время чтения" },
-          { value: "0", label: "страниц PDF" },
-        ],
-      },
-    ],
-  },
-  {
-    slug: "kvartal-city",
-    title: "Квартал",
-    client: "Девелопер «Квартал»",
-    year: "2024",
-    role: "Дизайн, разработка, поддержка",
-    tags: ["Недвижимость", "Корпоративный сайт"],
-    cover: "/placeholders/project-04.svg",
-    summary:
-      "Сайт жилого квартала с подбором квартир: карта корпусов, фильтры и заявка в два шага.",
-    blocks: [
-      {
-        type: "text",
-        title: "Задача",
-        body:
-          "Помочь покупателю выбрать квартиру, не звоня в отдел продаж, и передать заявку менеджеру со всем контекстом.",
-      },
-      {
-        type: "image",
-        src: "/placeholders/project-04-a.svg",
-        alt: "Подбор квартир",
-        wide: true,
-      },
-      {
-        type: "text",
-        title: "Решение",
-        body:
-          "Собрали интерактивный подбор: план корпуса, этаж, планировка. Заявка уходит в CRM вместе с выбранным лотом.",
-      },
-      {
-        type: "quote",
-        body:
-          "Менеджеры стали тратить на квалификацию заявки в два раза меньше времени.",
-        author: "Руководитель отдела продаж",
-      },
-    ],
-  },
-  {
-    slug: "signal-app",
-    title: "Signal",
-    client: "Signal Labs",
-    year: "2023",
-    role: "Дизайн интерфейса",
-    tags: ["Личный кабинет", "SaaS"],
-    cover: "/placeholders/project-05.svg",
-    summary:
-      "Личный кабинет сервиса мониторинга: сводка, оповещения и история инцидентов в одном месте.",
-    blocks: [
-      {
-        type: "text",
-        title: "Задача",
-        body:
-          "Свести десятки метрик к одному экрану, на котором дежурный инженер за минуту понимает состояние системы.",
-      },
-      {
-        type: "image",
-        src: "/placeholders/project-05-a.svg",
-        alt: "Дашборд Signal",
-        wide: true,
-      },
-      {
-        type: "text",
-        title: "Решение",
-        body:
-          "Ввели три уровня детализации: сводка, разрез по сервисам, лента событий. Оповещения группируются по инцидентам.",
-      },
-      {
-        type: "stats",
-        items: [
-          { value: "−40%", label: "лишних оповещений" },
-          { value: "3", label: "уровня детализации" },
-          { value: "24/7", label: "режим дежурства" },
-        ],
-      },
-    ],
-  },
-  {
-    slug: "forma-studio",
-    title: "Форма",
-    client: "Студия «Форма»",
-    year: "2023",
-    role: "Дизайн, разработка",
-    tags: ["Портфолио", "Анимация"],
-    cover: "/placeholders/project-06.svg",
-    summary:
-      "Портфолио архитектурного бюро: спокойная сетка, крупные планы и аккуратные переходы между проектами.",
-    blocks: [
-      {
-        type: "text",
-        title: "Задача",
-        body:
-          "Показать двадцать лет работы бюро так, чтобы проекты не сливались в бесконечную ленту.",
-      },
-      {
-        type: "image",
-        src: "/placeholders/project-06-a.svg",
-        alt: "Сетка проектов бюро",
-        wide: true,
-      },
-      {
-        type: "text",
-        title: "Решение",
-        body:
-          "Разделили архив по типологиям и годам. Каждый проект — отдельная страница с единым ритмом подачи материала.",
-      },
-      {
-        type: "image",
-        src: "/placeholders/project-06-b.svg",
-        alt: "Страница проекта бюро",
-      },
-    ],
-  },
 ];
+
+/** Что показываем на главной: Meet Up крупно, под ним два компактных. */
+export const featuredSlugs = ["meet-up", "devcontest", "court-01"] as const;
+
+export const featuredProjects: Project[] = featuredSlugs
+  .map((slug) => projects.find((project) => project.slug === slug))
+  .filter((project): project is Project => Boolean(project));
 
 export function getProject(slug: string): Project | undefined {
   return projects.find((project) => project.slug === slug);
