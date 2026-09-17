@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Исходники макетов: тяжёлые бинарники, в сборку не идут
+/design

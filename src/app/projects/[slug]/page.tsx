@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { Counter } from "@/components/motion/Counter";
@@ -125,6 +126,33 @@ export default async function ProjectPage({ params }: PageProps) {
                   className={block.wide ? "aspect-[16/9] w-full" : "aspect-[4/5] w-full"}
                 />
                 <figcaption className="label mt-4">{block.alt}</figcaption>
+              </Reveal>
+            );
+          }
+
+          if (block.type === "screens") {
+            return (
+              <Reveal
+                key={index}
+                as="ul"
+                className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 md:gap-x-8"
+                stagger={0.08}
+              >
+                {block.items.map((item) => (
+                  <li key={item.src}>
+                    {/* Экран показываем целиком: кадрировать телефон нечем,
+                        все файлы приведены к одной высоте при подготовке. */}
+                    <Image
+                      src={item.src}
+                      alt={item.caption}
+                      width={786}
+                      height={1704}
+                      sizes="(max-width: 768px) 45vw, 30vw"
+                      className="w-full rounded-[1.5rem] border border-line md:rounded-[2rem]"
+                    />
+                    <p className="label mt-4">{item.caption}</p>
+                  </li>
+                ))}
               </Reveal>
             );
           }
