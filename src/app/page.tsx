@@ -144,7 +144,7 @@ export default function HomePage() {
             >
               <span className="font-display text-h3">{service.title}</span>
               <span className="text-muted">{service.summary}</span>
-              <span className="label md:text-right">{service.duration}</span>
+              <span className="label md:text-right">{service.code}</span>
             </TransitionLink>
           ))}
         </Reveal>

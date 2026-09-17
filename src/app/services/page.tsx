@@ -8,19 +8,9 @@ import { process, services } from "@/content/services";
 export const metadata: Metadata = {
   title: "Услуги",
   description:
-    "Пакеты работ Noreliq: лендинг, корпоративный сайт, продукт и интерфейс, поддержка и развитие. Стоимость — по запросу.",
+    "Услуги Noreliq: веб-платформы и интеграции, карточки и AI-визуал для маркетплейсов, AI-видео, Telegram-боты и Mini Apps, AI-автоматизация, продвижение в AI-поиске.",
   alternates: { canonical: "/services" },
 };
-
-/** Цена пока не указывается: price === null → «по запросу». */
-function formatPrice(price: number | null) {
-  if (price === null) return "По запросу";
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
 
 export default function ServicesPage() {
   return (
@@ -28,46 +18,51 @@ export default function ServicesPage() {
       <PageHero
         label="02 / Услуги"
         title="Пакеты работ"
-        lead="Формат подбираем под задачу: от быстрого лендинга до продукта с дизайн-системой и долгой поддержкой. Стоимость считаем после короткого разговора."
+        lead="Шесть направлений — от веб-платформ и маркетплейсов до AI-контента, Telegram, автоматизации и видимости в AI-поиске. Формат и стоимость собираем под задачу после короткого разговора."
       />
 
       <section className="container-x section-b" aria-labelledby="packages">
         <h2 id="packages" className="sr-only">
-          Тарифные пакеты
+          Услуги
         </h2>
 
-        <Reveal className="grid gap-6 md:grid-cols-2" stagger={0.1}>
-          {services.map((service) => (
+        <Reveal className="flex flex-col border-t border-line" stagger={0.1}>
+          {services.map((category) => (
             <article
-              key={service.id}
-              className="flex flex-col border border-line p-7 transition-colors duration-500 hover:border-fg md:p-9"
+              key={category.id}
+              className="grid gap-6 border-b border-line py-12 md:grid-cols-[12rem_1fr] md:gap-12"
             >
-              <div className="flex items-baseline justify-between gap-4">
-                <h3 className="font-display text-h3">{service.title}</h3>
-                <span className="label shrink-0">{service.duration}</span>
+              <div>
+                <span className="label block">
+                  {category.index} · {category.code}
+                </span>
+                <h3 className="mt-3 font-display text-h3">{category.title}</h3>
               </div>
 
-              <p className="mt-4 text-muted">{service.summary}</p>
-
-              <ul className="mt-8 flex flex-col gap-2 border-t border-line pt-6">
-                {service.features.map((feature) => (
-                  <li key={feature} className="flex gap-3">
-                    <span aria-hidden="true" className="text-accent-ink">
-                      →
-                    </span>
-                    {feature}
-                  </li>
+              <div>
+                {category.description.map((paragraph) => (
+                  <p key={paragraph} className="max-w-[62ch] text-muted [&:not(:first-child)]:mt-4">
+                    {paragraph}
+                  </p>
                 ))}
-              </ul>
 
-              <div className="mt-8 flex items-end justify-between gap-4 border-t border-line pt-6">
-                <div>
-                  <span className="label block">Стоимость</span>
-                  <span className="mt-1 block font-display text-h3">
-                    {formatPrice(service.price)}
-                  </span>
-                </div>
-                <TransitionLink href="/contacts" className="btn-accent">
+                <ul className="mt-8 flex flex-col gap-2 border-t border-line pt-6">
+                  {category.tiers.map((tier) => (
+                    <li
+                      key={tier.title}
+                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"
+                    >
+                      <span>{tier.title}</span>
+                      <span className="font-display text-h3">{tier.price}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {category.footnote && (
+                  <p className="mt-6 text-sm text-muted">{category.footnote}</p>
+                )}
+
+                <TransitionLink href="/contacts" className="btn-accent mt-8 inline-flex">
                   Обсудить
                   <span aria-hidden="true">→</span>
                 </TransitionLink>
