@@ -118,12 +118,20 @@ export default async function ProjectPage({ params }: PageProps) {
 
           if (block.type === "image") {
             return (
-              <Reveal key={index} as="figure" className={block.wide ? "" : "md:w-2/3"}>
+              <Reveal key={index} as="figure" className={block.wide || block.contain ? "" : "md:w-2/3"}>
                 <ParallaxImage
                   src={block.src}
                   alt={block.alt}
-                  sizes={block.wide ? "100vw" : "(max-width: 768px) 100vw, 65vw"}
-                  className={block.wide ? "aspect-[16/9] w-full" : "aspect-[4/5] w-full"}
+                  sizes={block.wide || block.contain ? "100vw" : "(max-width: 768px) 100vw, 65vw"}
+                  className={
+                    block.contain
+                      ? "aspect-[8/5] w-full"
+                      : block.wide
+                        ? "aspect-[16/9] w-full"
+                        : "aspect-[4/5] w-full"
+                  }
+                  fit={block.contain ? "contain" : "cover"}
+                  amount={block.contain ? 6 : 12}
                 />
                 <figcaption className="label mt-4">{block.alt}</figcaption>
               </Reveal>
