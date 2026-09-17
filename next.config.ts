@@ -12,6 +12,9 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
   images: {
+    // Next отдаёт только те значения quality, которые перечислены здесь;
+    // всё остальное молча падает до 75. Для снимков интерфейса нужен запас.
+    qualities: [75, 90, 92],
     // Плейсхолдеры лежат локально в SVG. Внешние источники не используются.
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
