@@ -3,7 +3,12 @@
 import { useEffect, useRef } from "react";
 
 import { gsap } from "@/lib/gsap";
-import { useCoarsePointer, useReducedMotion } from "@/lib/useReducedMotion";
+import {
+  DESKTOP_QUERY,
+  useCoarsePointer,
+  useMediaQuery,
+  useReducedMotion,
+} from "@/lib/useReducedMotion";
 
 const INTERACTIVE = 'a, button, [role="button"], [data-cursor]';
 
@@ -16,7 +21,12 @@ export function Cursor() {
   const ringRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const coarse = useCoarsePointer();
-  const enabled = reduced === false && coarse === false;
+  // Ширину проверяем тем же условием, что и отрисовку курсора. Раньше класс
+  // has-custom-cursor (cursor: none) ставился независимо от вёрстки, а сам
+  // курсор прятался через hidden md:block — в узком окне десктопного браузера
+  // пропадали оба, и указателя не оставалось вовсе.
+  const desktop = useMediaQuery(DESKTOP_QUERY);
+  const enabled = reduced === false && coarse === false && desktop === true;
 
   useEffect(() => {
     if (!enabled) return;
@@ -76,7 +86,7 @@ export function Cursor() {
   if (!enabled) return null;
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[95] hidden md:block">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[95]">
       <div
         ref={ringRef}
         className="invisible fixed -left-5 -top-5 h-10 w-10 rounded-full border border-fg"

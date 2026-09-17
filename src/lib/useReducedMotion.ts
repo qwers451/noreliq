@@ -4,35 +4,33 @@ import { useEffect, useState } from "react";
 
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+/** Брейкпоинт md из Tailwind: ниже него интерфейс ведёт себя «по-мобильному». */
+export const DESKTOP_QUERY = "(min-width: 768px)";
+
 /**
- * Единый источник правды о том, можно ли анимировать.
- * Возвращает null до гидрации, чтобы не запускать анимации раньше замера.
+ * Подписка на медиа-запрос. Возвращает null до гидрации, чтобы ничего
+ * не запускалось раньше замера, и обновляется при изменении окна.
  */
-export function useReducedMotion(): boolean | null {
-  const [reduced, setReduced] = useState<boolean | null>(null);
+export function useMediaQuery(query: string): boolean | null {
+  const [matches, setMatches] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia(REDUCED_MOTION_QUERY);
-    const update = () => setReduced(mq.matches);
+    const mq = window.matchMedia(query);
+    const update = () => setMatches(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, []);
+  }, [query]);
 
-  return reduced;
+  return matches;
+}
+
+/** Единый источник правды о том, можно ли анимировать. */
+export function useReducedMotion(): boolean | null {
+  return useMediaQuery(REDUCED_MOTION_QUERY);
 }
 
 /** true — если устройство без точного указателя (тач). */
 export function useCoarsePointer(): boolean | null {
-  const [coarse, setCoarse] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: coarse)");
-    const update = () => setCoarse(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return coarse;
+  return useMediaQuery("(pointer: coarse)");
 }
