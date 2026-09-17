@@ -18,7 +18,8 @@ export function Header() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const headerRef = useRef<HTMLElement>(null);
+  /* Анимируем внутренний бар, а не сам <header>: см. комментарий у разметки. */
+  const barRef = useRef<HTMLDivElement>(null);
 
   /* Блокируем скролл под открытым меню. */
   useEffect(() => {
@@ -28,7 +29,7 @@ export function Header() {
 
   /* Скролл вниз — шапка уезжает, вверх — возвращается. */
   useEffect(() => {
-    const el = headerRef.current;
+    const el = barRef.current;
     if (!el) return;
 
     // При открытом меню шапка обязана оставаться на месте: в ней кнопка «Закрыть».
@@ -77,8 +78,14 @@ export function Header() {
     href === homeHref ? pathname === href : pathname.startsWith(href);
 
   return (
-    <header ref={headerRef} className="pointer-events-none fixed inset-x-0 top-0 z-50">
+    /* <header> обязан остаться без transform, пока внутри него живёт мобильное меню
+       с position: fixed: любой transform делает предка containing block, меню
+       перестаёт считаться от вьюпорта, схлопывается до высоты своих паддингов —
+       и светлые пункты оказываются на белом фоне страницы. Прячем при скролле
+       только внутренний бар (barRef). */
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
       <div
+        ref={barRef}
         className={clsx(
           "container-x pointer-events-auto flex h-[var(--header-h)] items-center justify-between transition-colors duration-300",
           open ? "text-inverse" : "text-fg",
