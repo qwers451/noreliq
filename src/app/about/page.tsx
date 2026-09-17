@@ -67,7 +67,7 @@ export default function AboutPage() {
         <h2 id="stack" className="sr-only">
           Технологии
         </h2>
-        <Marquee items={about.stack} duration={34} />
+        <Marquee items={about.stack} duration={72} />
       </section>
 
       <section className="container-x" aria-labelledby="team">
@@ -76,7 +76,7 @@ export default function AboutPage() {
             Команда
           </Reveal>
           <Reveal as="p" className="label">
-            {site.city} · {site.timezone}
+            {site.city}
           </Reveal>
         </div>
 

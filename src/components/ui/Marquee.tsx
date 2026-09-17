@@ -11,7 +11,7 @@ type MarqueeProps = {
  * Бегущая строка на CSS. Анимация включена только под .motion-ok,
  * поэтому при prefers-reduced-motion строка просто стоит на месте.
  */
-export function Marquee({ items, className, duration = 28 }: MarqueeProps) {
+export function Marquee({ items, className, duration = 64 }: MarqueeProps) {
   return (
     <div
       className={clsx("marquee relative flex w-full overflow-hidden", className)}

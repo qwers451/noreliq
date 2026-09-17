@@ -181,10 +181,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
         className="motion-only fixed inset-0 z-[100] flex items-end justify-between bg-fg px-[var(--gutter)] pb-10 text-inverse"
       >
         <Image
-          src="/brand/logo-full-light.png"
+          src="/brand/logo-full-light.webp"
           alt={site.name}
-          width={1991}
-          height={790}
+          width={960}
+          height={381}
           sizes="(max-width: 768px) 55vw, 320px"
           priority
           className="h-10 w-auto md:h-14"

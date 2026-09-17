@@ -35,6 +35,7 @@ export function Disclosure({ index, title, children, className }: DisclosureProp
     // Без анимации панель просто показывается/скрывается.
     if (reduced !== false) {
       gsap.set(panel, { height: open ? "auto" : 0, autoAlpha: open ? 1 : 0 });
+      gsap.set(inner, { clearProps: "all" });
       return;
     }
 
@@ -45,11 +46,15 @@ export function Disclosure({ index, title, children, className }: DisclosureProp
     });
 
     if (open) {
-      tl.to(panel, { height: "auto", autoAlpha: 1, duration: 0.55 }).from(
-        inner,
-        { y: 16, autoAlpha: 0, duration: 0.5 },
-        "<0.1",
-      );
+      // Стартовое состояние задаём явно, а не через .from(): прерванный
+      // на полпути from оставляет элемент в промежуточных значениях и
+      // запоминает их как конечные — от частых кликов текст тускнел
+      // и больше не проявлялся.
+      tl.set(inner, { y: 16, autoAlpha: 0 })
+        .to(panel, { height: "auto", autoAlpha: 1, duration: 0.55 })
+        .to(inner, { y: 0, autoAlpha: 1, duration: 0.5 }, "<0.1")
+        // Фиксируем auto, чтобы панель не обрезала текст после смены ширины окна.
+        .set(panel, { height: "auto" });
     } else {
       tl.to(panel, { height: 0, autoAlpha: 0, duration: 0.4, ease: "power3.inOut" });
     }

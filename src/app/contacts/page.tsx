@@ -6,7 +6,7 @@ import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Контакты",
-  description: `Связаться с ${site.name}: ${site.email}, ${site.phone}. ${site.city}, ${site.timezone}.`,
+  description: `Связаться с ${site.name}: ${site.email}, ${site.phone}. ${site.city}.`,
   alternates: { canonical: "/contacts" },
 };
 
@@ -46,7 +46,7 @@ export default function ContactsPage() {
         </Reveal>
       </section>
 
-      <section className="container-x section-b" aria-labelledby="socials">
+      <section className="container-x" aria-labelledby="socials">
         <Reveal as="h2" id="socials" className="label">
           Соцсети
         </Reveal>
@@ -71,36 +71,6 @@ export default function ContactsPage() {
         </Reveal>
       </section>
 
-      {/* Место под форму обратной связи: появится здесь, вёрстку менять не придётся. */}
-      <section className="container-x" aria-labelledby="details">
-        <Reveal as="h2" id="details" className="label">
-          Реквизиты и адрес
-        </Reveal>
-
-        <Reveal
-          as="dl"
-          className="mt-6 grid gap-8 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-4"
-          stagger={0.08}
-          y={24}
-        >
-          <div>
-            <dt className="label">Город</dt>
-            <dd className="mt-2">
-              {site.city}, {site.timezone}
-            </dd>
-          </div>
-          {site.legal.map((item) => (
-            <div key={item.label}>
-              <dt className="label">{item.label}</dt>
-              <dd className="mt-2">{item.value}</dd>
-            </div>
-          ))}
-        </Reveal>
-
-        <p className="mt-10 max-w-[52ch] text-sm text-muted">
-          Реквизиты указаны как заглушка и будут заменены на актуальные.
-        </p>
-      </section>
     </>
   );
 }

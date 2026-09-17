@@ -157,6 +157,34 @@ export default async function ProjectPage({ params }: PageProps) {
             );
           }
 
+          if (block.type === "shots") {
+            return (
+              <Reveal
+                key={index}
+                as="ul"
+                className="grid gap-6 md:grid-cols-2 md:gap-8"
+                stagger={0.1}
+              >
+                {block.items.map((item) => (
+                  <li key={item.src}>
+                    {/* Снимок десктопа: по двое в ряд — страница не растягивается,
+                        а картинка на экране мельче, поэтому выглядит резче. */}
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      width={item.width}
+                      height={item.height}
+                      sizes="(max-width: 768px) 100vw, 46vw"
+                      quality={90}
+                      className="h-auto w-full rounded-md border border-line"
+                    />
+                    <p className="label mt-3">{item.alt}</p>
+                  </li>
+                ))}
+              </Reveal>
+            );
+          }
+
           if (block.type === "screens") {
             return (
               <Reveal

@@ -98,10 +98,10 @@ export function Header() {
         >
           {/* На тёмном фоне открытого меню показываем светлую версию знака. */}
           <Image
-            src={open ? "/brand/logo-full-light.png" : "/brand/logo-full.png"}
+            src={open ? "/brand/logo-full-light.webp" : "/brand/logo-full.webp"}
             alt={site.name}
-            width={1991}
-            height={790}
+            width={420}
+            height={167}
             sizes="(max-width: 768px) 96px, 120px"
             priority
             className="h-9 w-auto md:h-11"

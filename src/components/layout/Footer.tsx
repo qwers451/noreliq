@@ -61,9 +61,7 @@ export function Footer() {
 
         <div className="flex flex-col gap-2">
           <span className="label">Студия</span>
-          <p className="text-muted">
-            {site.city}, {site.timezone}
-          </p>
+          <p className="text-muted">{site.city}</p>
           <ScrollTopLink />
         </div>
       </Reveal>
@@ -77,7 +75,7 @@ export function Footer() {
         start="top bottom"
       >
         <span>
-          © {year} {site.name}. {site.legalName}
+          © {year} {site.name}
         </span>
         <span>Все права защищены</span>
       </Reveal>
