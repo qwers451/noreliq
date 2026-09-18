@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <PageHero label="01 / О нас" title="Небольшая студия с длинными отношениями" lead={about.lead} />
+      <PageHero label="01 / О нас" title="Студия для сайтов, AI-контента и автоматизации" lead={about.lead} />
 
       <section className="container-x section-b" aria-labelledby="about-text">
         <h2 id="about-text" className="sr-only">
