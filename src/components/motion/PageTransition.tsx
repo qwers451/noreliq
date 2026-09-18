@@ -37,6 +37,16 @@ export function useTransitionRouter() {
 
 const PANELS = [0, 1, 2, 3, 4];
 
+/**
+ * При `trailingSlash: true` (статический экспорт) `usePathname()` отдаёт путь
+ * со слэшем на конце, а ссылки в `nav.ts` — без него. Без нормализации
+ * переход на текущую страницу не совпадает с pathname, шторка закрывает
+ * экран и остаётся так навсегда: `router.push` на тот же маршрут не меняет
+ * pathname, и «открывающий» эффект просто не запускается.
+ */
+const normalizePath = (path: string) =>
+  path.length > 1 ? path.replace(/\/+$/, "") : path;
+
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -126,7 +136,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
 
   const navigate = useCallback(
     (href: string) => {
-      if (href === pathname) return;
+      if (normalizePath(href) === normalizePath(pathname)) return;
 
       const curtain = curtainRef.current;
       if (reduced !== false || !curtain) {
