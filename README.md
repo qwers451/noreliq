@@ -17,41 +17,42 @@ node scripts/generate-placeholders.mjs   # перегенерировать SVG-
 
 ## Публикация на GitHub Pages
 
-Демо-стенд собирается и выкладывается автоматически: пуш в `main` запускает
+Сайт собирается и выкладывается автоматически: пуш в `main` запускает
 `.github/workflows/deploy.yml`. Один раз нужно включить публикацию в настройках
-репозитория: **Settings → Pages → Source → GitHub Actions**.
+репозитория: **Settings → Pages → Source → GitHub Actions**, а в **Settings → Pages →
+Custom domain** указать `noreliq.ru` (файл `public/CNAME` уже попадает в сборку и
+подтверждает домен на стороне GitHub).
 
-Адрес: `https://<owner>.github.io/<repo>/`
+Адрес: `https://noreliq.ru/` — сайт отдаётся из корня домена, без префикса пути.
 
-Статический режим включается **только** переменными окружения, которые выставляет
+Статический режим включается **только** переменной окружения, которую выставляет
 workflow, — локальные `npm run dev` и `npm run build` работают как раньше, под будущий
 свой домен и сервер:
 
 | Переменная | Зачем |
 |---|---|
 | `GITHUB_PAGES=true` | включает `output: "export"`, `trailingSlash` и свой загрузчик картинок |
-| `NEXT_PUBLIC_BASE_PATH` | префикс пути (`/noreliq`), без него на Pages отвалятся стили и картинки |
-| `NEXT_PUBLIC_SITE_URL` | адрес для `sitemap.xml`, canonical и OG |
+| `NEXT_PUBLIC_SITE_URL` | адрес для `sitemap.xml`, canonical и OG (по умолчанию `https://noreliq.ru`) |
 
 Собрать экспорт локально (результат — папка `out/`):
 
 ```bash
-GITHUB_PAGES=true NEXT_PUBLIC_BASE_PATH=/noreliq npm run build
+GITHUB_PAGES=true npm run build
 ```
 
-### Переезд на свой домен
-
-Убрать из workflow `NEXT_PUBLIC_BASE_PATH` (и `GITHUB_PAGES`, если хостинг
-будет с сервером) — префикс исчезнет сам, правки кода не нужны. Ссылки, картинки
-и метаданные собраны относительно этих переменных.
+Если сайт когда-нибудь снова переедет на путь вида `<host>/<repo>` (например, обратно
+на `github.io/<repo>`), достаточно выставить `NEXT_PUBLIC_BASE_PATH=/<repo>` — префикс
+подхватится сам, правки кода не нужны. Ссылки, картинки и метаданные собраны
+относительно этой переменной.
 
 Особенности статической сборки, заложенные в проект:
 
 - `dynamic = "force-static"` в `sitemap.ts`, `robots.ts`, `opengraph-image.tsx` — без этого экспорт падает;
-- свой `image-loader.ts`: с `images.unoptimized` Next не подставляет `basePath` и картинки отдают 404;
-- префетч ссылок отключён на статике — Next кладёт RSC-пейлоады не туда, откуда их просит роутер;
+- свой `image-loader.ts`: с `images.unoptimized` Next не подставляет `basePath` и картинки отдают 404 (актуально только при непустом `NEXT_PUBLIC_BASE_PATH`);
+- префетч ссылок отключён при непустом `NEXT_PUBLIC_BASE_PATH` — Next кладёт RSC-пейлоады не туда, откуда их просит роутер;
 - `public/.nojekyll` — иначе Pages выкидывает папку `_next`;
-- демо закрыто от индексации в `robots.txt`, чтобы не конкурировать с основным доменом.
+- `public/CNAME` — закрепляет кастомный домен `noreliq.ru` за GitHub Pages;
+- индексация в `robots.txt` включена только когда `NEXT_PUBLIC_BASE_PATH` пуст (то есть на боевом домене).
 
 ## Структура
 

@@ -13,7 +13,7 @@ export const site = {
   description:
     "Noreliq — digital & AI студия. Проектируем интерфейсы, собираем сайты и веб-сервисы с ИИ-функциями под задачи бизнеса.",
   /** Переопределяется NEXT_PUBLIC_SITE_URL — например, для демо на GitHub Pages. */
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://noreliq.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://noreliq.ru",
   email: "hello@noreliq.com",
   phone: "+7 (000) 000-00-00",
   phoneHref: "+70000000000",
