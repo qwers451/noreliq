@@ -49,11 +49,6 @@ for (let i = 1; i <= 6; i += 1) {
   files.push([`project-${n}-b.svg`, card({ width: 1200, height: 1500, label: `Проект ${n}, кадр B`, index: `${n}B`, seed: i + 2 })]);
 }
 
-for (let i = 1; i <= 4; i += 1) {
-  const n = String(i).padStart(2, "0");
-  files.push([`team-${n}.svg`, card({ width: 800, height: 1000, label: `Портрет ${n}`, index: n, seed: i + 3 })]);
-}
-
 files.push(["og-cover.svg", card({ width: 1200, height: 630, label: "noreliq", index: "no", seed: 2 })]);
 
 for (const [name, content] of files) {

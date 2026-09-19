@@ -6,7 +6,6 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Marquee } from "@/components/ui/Marquee";
 import { PageHero } from "@/components/ui/PageHero";
 import { about } from "@/content/about";
-import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "О нас",
@@ -67,25 +66,6 @@ export default function AboutPage() {
           Технологии
         </h2>
         <Marquee items={about.stack} duration={72} />
-      </section>
-
-      <section className="container-x" aria-labelledby="team">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <Reveal as="h2" id="team" className="text-h2">
-            Команда
-          </Reveal>
-          <Reveal as="p" className="label">
-            {site.city}
-          </Reveal>
-        </div>
-
-        <Reveal className="mt-14 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.08}>
-          {about.team.map((role) => (
-            <div key={role} className="border-t border-line pt-4">
-              <span className="block font-display text-h3">{role}</span>
-            </div>
-          ))}
-        </Reveal>
       </section>
     </>
   );
