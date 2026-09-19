@@ -4,12 +4,6 @@ export type Principle = {
   description: string;
 };
 
-export type TeamMember = {
-  name: string;
-  role: string;
-  photo: string;
-};
-
 export type Stat = {
   value: string;
   label: string;
@@ -86,9 +80,9 @@ export const about = {
     { value: "12", label: "стран у клиентов" },
   ] satisfies Stat[],
   team: [
-    { name: "Имя Фамилия", role: "Дизайн-директор", photo: "/placeholders/team-01.svg" },
-    { name: "Имя Фамилия", role: "Ведущий разработчик", photo: "/placeholders/team-02.svg" },
-    { name: "Имя Фамилия", role: "Продуктовый менеджер", photo: "/placeholders/team-03.svg" },
-    { name: "Имя Фамилия", role: "Моушн-дизайнер", photo: "/placeholders/team-04.svg" },
-  ] satisfies TeamMember[],
+    "Дизайн-директор",
+    "Ведущий разработчик",
+    "Продуктовый менеджер",
+    "Моушн-дизайнер",
+  ],
 } as const;

@@ -21,9 +21,6 @@ export const site = {
   foundedYear: 2019,
   socials: [
     { label: "Telegram", href: "https://t.me/noreliq", handle: "@noreliq" },
-    { label: "Behance", href: "https://behance.net/noreliq", handle: "/noreliq" },
-    { label: "GitHub", href: "https://github.com/noreliq", handle: "/noreliq" },
-    { label: "LinkedIn", href: "https://linkedin.com/company/noreliq", handle: "/noreliq" },
   ] satisfies SocialLink[],
 } as const;
 

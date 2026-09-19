@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { PageHero } from "@/components/ui/PageHero";
+import { legal } from "@/content/legal";
 import { site } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -71,6 +72,57 @@ export default function ContactsPage() {
         </Reveal>
       </section>
 
+      <section className="container-x" aria-labelledby="legal">
+        <Reveal as="h2" id="legal" className="label">
+          Реквизиты
+        </Reveal>
+
+        <Reveal
+          as="dl"
+          className="mt-6 grid gap-x-10 gap-y-6 border-t border-line pt-6 sm:grid-cols-2"
+          stagger={0.06}
+          y={16}
+        >
+          <div>
+            <dt className="label">Сокращённое наименование</dt>
+            <dd className="mt-1">{legal.shortName}</dd>
+          </div>
+          <div>
+            <dt className="label">Полное наименование</dt>
+            <dd className="mt-1">{legal.fullName}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="label">Адрес</dt>
+            <dd className="mt-1">{legal.address}</dd>
+          </div>
+          <div>
+            <dt className="label">Расчётный счёт</dt>
+            <dd className="mt-1">
+              {legal.bank.account} ({legal.bank.currency})
+            </dd>
+          </div>
+          <div>
+            <dt className="label">Банк</dt>
+            <dd className="mt-1">{legal.bank.name}</dd>
+          </div>
+          <div>
+            <dt className="label">БИК</dt>
+            <dd className="mt-1">{legal.bank.bic}</dd>
+          </div>
+          <div>
+            <dt className="label">Корр. счёт</dt>
+            <dd className="mt-1">{legal.bank.corrAccount}</dd>
+          </div>
+          <div>
+            <dt className="label">ИНН банка</dt>
+            <dd className="mt-1">{legal.bank.inn}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="label">Адрес банка</dt>
+            <dd className="mt-1">{legal.bank.address}</dd>
+          </div>
+        </Reveal>
+      </section>
     </>
   );
 }

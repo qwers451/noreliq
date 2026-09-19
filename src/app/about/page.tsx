@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { Counter } from "@/components/motion/Counter";
 import { Disclosure } from "@/components/motion/Disclosure";
@@ -81,22 +80,10 @@ export default function AboutPage() {
         </div>
 
         <Reveal className="mt-14 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.08}>
-          {about.team.map((member, index) => (
-            <figure key={`${member.role}-${index}`}>
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-bg-alt">
-                <Image
-                  src={member.photo}
-                  alt={`${member.name} — ${member.role}`}
-                  fill
-                  sizes="(max-width: 768px) 45vw, 22vw"
-                  className="object-cover"
-                />
-              </div>
-              <figcaption className="mt-4">
-                <span className="block font-display text-h3">{member.name}</span>
-                <span className="label mt-1 block">{member.role}</span>
-              </figcaption>
-            </figure>
+          {about.team.map((role) => (
+            <div key={role} className="border-t border-line pt-4">
+              <span className="block font-display text-h3">{role}</span>
+            </div>
           ))}
         </Reveal>
       </section>
