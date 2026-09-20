@@ -22,6 +22,7 @@ export function ThemeField() {
     root.style.setProperty("--color-fg", field.ink);
     root.style.setProperty("--color-accent", field.accent);
     root.style.setProperty("--color-line", field.line);
+    root.style.setProperty("--color-glow", field.glow);
   }, [pathname]);
 
   return null;

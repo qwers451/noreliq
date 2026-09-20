@@ -1,17 +1,18 @@
 import { site } from "@/content/site";
 
 /**
- * Нижняя строка вместо подвала: годы слева, почта справа. Как у референса —
+ * Нижняя строка вместо подвала: год основания слева, почта справа.
+ * Как у референса —
  * лежит поверх цветового поля и не занимает отдельный экран.
  */
 export function Footer() {
-  const year = new Date().getFullYear();
-
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40">
       <div className="container-x flex items-center justify-between pb-5">
+        {/* Год основания, а не диапазон: студия появилась в 2026-м,
+            и «2026/2026» выглядело бы как опечатка. */}
         <span className="mono-label pointer-events-auto opacity-70">
-          {site.foundedYear}/{year}
+          Est. {site.foundedYear}
         </span>
 
         <a

@@ -14,19 +14,19 @@ export const metadata: Metadata = {
 export default function ContactsPage() {
   return (
     <>
-      <Poster caps="Давайте поработаем" italic="расскажите о задаче" label="04 / Контакты" />
+      <Poster caps="Давайте поработаем" note="расскажите о задаче" label="04 / Контакты" />
 
       {/* Контакты выведены отдельным блоком внутри того же экрана:
           у референса под заголовком идёт такой же центрированный столбик. */}
       <section className="container-x -mt-[26svh] pb-24 text-center">
         <Reveal className="flex flex-col items-center gap-1" immediate delay={0.3}>
-          <a href={`mailto:${site.email}`} className="link-mask tap-target">
+          <a href={`mailto:${site.email}`} className="link-mask tap-target font-code">
             {site.email}
           </a>
-          <a href={`tel:${site.phoneHref}`} className="link-mask tap-target">
+          <a href={`tel:${site.phoneHref}`} className="link-mask tap-target font-code">
             {site.phone}
           </a>
-          <p className="opacity-70">{site.city}</p>
+          <p className="font-code opacity-70">{site.city}</p>
         </Reveal>
 
         <Reveal className="mt-8 flex flex-wrap items-center justify-center gap-5" delay={0.36} immediate>
@@ -53,24 +53,18 @@ export default function ContactsPage() {
 
         <Reveal
           as="dl"
-          className="mx-auto mt-8 grid max-w-3xl gap-x-10 gap-y-5 border-t border-line pt-8 sm:grid-cols-2"
+          className="mx-auto mt-8 grid max-w-3xl gap-x-10 gap-y-5 border-t border-line pt-8 sm:grid-cols-3"
           stagger={0.05}
           y={16}
         >
           {[
             ["Сокращённое наименование", legal.shortName],
-            ["Полное наименование", legal.fullName],
-            ["Адрес", legal.address],
-            ["Расчётный счёт", `${legal.bank.account} (${legal.bank.currency})`],
-            ["Банк", legal.bank.name],
-            ["БИК", legal.bank.bic],
-            ["Корр. счёт", legal.bank.corrAccount],
-            ["ИНН банка", legal.bank.inn],
-            ["Адрес банка", legal.bank.address],
+            ["ИНН", legal.inn],
+            ["ОГРНИП", legal.ogrnip],
           ].map(([term, value]) => (
             <div key={term}>
               <dt className="mono-label opacity-60">{term}</dt>
-              <dd className="mt-1">{value}</dd>
+              <dd className="mt-1 font-code text-[0.875rem] leading-relaxed">{value}</dd>
             </div>
           ))}
         </Reveal>

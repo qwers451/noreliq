@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 export default function ServicesPage() {
   return (
     <>
-      <Poster label="02 / Услуги" caps="Что мы умеем" italic="форматы работ и цены" />
+      <Poster label="02 / Услуги" caps="Что мы умеем" note="форматы работ и цены" />
 
-      {/* Список направлений: крупная антиква и цены моноширинным —
-          без описаний на несколько абзацев. */}
+      {/* Список направлений: плотный гротеск в заголовках и цены
+          моноширинным — без описаний на несколько абзацев. */}
       <section className="container-x -mt-[22svh] pb-[var(--section-y)]">
         <div className="mx-auto max-w-4xl">
           {services.map((service, index) => (
@@ -46,7 +46,7 @@ export default function ServicesPage() {
                     <dt className="opacity-80 sm:shrink-0">{tier.title}</dt>
                     {/* Линия-выноска только там, где строка помещается целиком. */}
                     <span aria-hidden="true" className="hidden h-px flex-1 bg-line sm:block" />
-                    <dd className="sm:shrink-0">{tier.price}</dd>
+                    <dd className="font-code tabular-nums sm:shrink-0">{tier.price}</dd>
                   </div>
                 ))}
               </dl>

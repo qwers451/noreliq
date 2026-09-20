@@ -4,12 +4,14 @@
    Дизайн-токены. Ребрендинг = правка значений в этом блоке.
 ------------------------------------------------------------------- */
 @theme {
-  /* Дефолтное поле — графит главной. Реальные значения подставляет
-     ThemeField: у каждого раздела свой цвет, как у референса. */
-  --color-bg: #14171a;
-  --color-fg: #f4f5f2;
+  /* Дефолтное поле — синяя ночь главной. Значения дублируют midnight
+     из themes.ts: до гидрации ThemeField ещё не отработал, и без этого
+     первая отрисовка мигала бы чужим цветом. */
+  --color-bg: #111c3b;
+  --color-fg: #eef1fa;
   --color-accent: #9ae63c;
-  --color-line: rgba(244, 245, 242, 0.22);
+  --color-line: rgba(238, 241, 250, 0.22);
+  --color-glow: rgba(120, 150, 235, 0.16);
   --color-muted: currentColor;
   --color-bg-alt: rgba(0, 0, 0, 0.06);
   --color-inverse: #f4f5f2;
@@ -75,7 +77,9 @@
   }
 
   /* Лёгкое свечение сверху: плоская заливка выглядит бедно, а градиент
-     даёт ту же глубину, что у JetBrains, без лишней графики. */
+     даёт ту же глубину, что у JetBrains, без лишней графики. Цвет берём
+     у поля раздела — единого оттенка, который не грязнит ни одну из
+     заливок, не существует. */
   body::before {
     content: "";
     position: fixed;
@@ -83,9 +87,9 @@
     pointer-events: none;
     z-index: 0;
     background: radial-gradient(
-      70% 45% at 50% -5%,
-      color-mix(in srgb, var(--color-accent) 12%, transparent),
-      transparent 65%
+      80% 55% at 50% -10%,
+      var(--color-glow, transparent),
+      transparent 70%
     );
   }
 
@@ -222,6 +226,28 @@
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
+  }
+
+  /* Горизонтальная лента: обвязка общая для проектов и кадров кейса.
+     Позицию меняет только useCarousel — поэтому здесь ни scroll-snap,
+     ни scroll-behavior: smooth, иначе браузер заводит вторую анимацию
+     поверх нашей и лента начинает дёргаться. */
+  .carousel-track {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: auto;
+    /* Горизонталь ведём сами, вертикаль и пинч оставляем системе. */
+    touch-action: pan-x pinch-zoom;
+    overscroll-behavior-inline: contain;
+    cursor: grab;
+    scrollbar-width: none;
+  }
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel-track:active {
+    cursor: grabbing;
   }
 
   /* Лента проектов прокручивается своей полосой, системная не нужна. */

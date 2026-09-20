@@ -6,10 +6,10 @@ import { TransitionLink } from "@/components/motion/TransitionLink";
 type PosterProps = {
   /** Мелкая строка над заголовком: раздел или позиционирование. */
   label?: string;
-  /** Первая строка — антиква капсом. */
+  /** Первая строка заголовка — плотный гротеск. */
   caps: string;
   /** Вторая строка — курсив в акцентном цвете. */
-  italic: string;
+  note: string;
   lead?: string;
   cta?: { href: string; label: string };
   /** Размер заголовка: hero для главной, display для внутренних страниц. */
@@ -24,7 +24,7 @@ type PosterProps = {
 export function Poster({
   label,
   caps,
-  italic,
+  note,
   lead,
   cta,
   size = "display",
@@ -52,7 +52,7 @@ export function Poster({
           immediate
           delay={0.08}
         >
-          {italic}
+          {note}
         </Reveal>
       </h1>
 
