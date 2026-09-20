@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { JetBrains_Mono, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
 
 import { Header } from "@/components/layout/Header";
+import { ThemeField } from "@/components/layout/ThemeField";
 import { Footer } from "@/components/layout/Footer";
 import { Cursor } from "@/components/motion/Cursor";
 import { Grain } from "@/components/motion/Grain";
@@ -11,16 +12,20 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { site } from "@/content/site";
 
-// Геометрический гротеск — ближе всего к начертанию логотипа.
-const display = Montserrat({
+// Высококонтрастная антиква вместо Bodoni: у неё есть кириллица и курсив,
+// на котором держится вся типографика референса.
+const display = Playfair_Display({
   subsets: ["latin", "cyrillic"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
   variable: "--font-display-src",
   display: "swap",
 });
 
-const sans = Inter({
+// Моноширинный для всего мелкого текста: меню, подписи, абзацы.
+const mono = JetBrains_Mono({
   subsets: ["latin", "cyrillic"],
+  weight: ["400", "500"],
   variable: "--font-sans-src",
   display: "swap",
 });
@@ -69,7 +74,7 @@ export default function RootLayout({
     // на <html> до гидрации, и React иначе ругается на расхождение атрибутов.
     <html
       lang="ru"
-      className={`${display.variable} ${sans.variable}`}
+      className={`${display.variable} ${mono.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
@@ -83,6 +88,8 @@ export default function RootLayout({
         >
           Перейти к содержимому
         </a>
+
+        <ThemeField />
 
         <SmoothScroll>
           <PageTransition>

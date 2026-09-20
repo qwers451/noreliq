@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 
-import { Counter } from "@/components/motion/Counter";
-import { Disclosure } from "@/components/motion/Disclosure";
-import { Reveal } from "@/components/motion/Reveal";
-import { PageHero } from "@/components/ui/PageHero";
+import { Poster } from "@/components/ui/Poster";
 import { about } from "@/content/about";
 
 export const metadata: Metadata = {
@@ -14,52 +11,12 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <>
-      <PageHero label="01 / О нас" title="Студия для сайтов, AI-контента и автоматизации" lead={about.lead} />
-
-      <section className="container-x section-b" aria-labelledby="about-text">
-        <h2 id="about-text" className="sr-only">
-          О студии
-        </h2>
-        <div className="grid gap-10 md:grid-cols-2">
-          {about.body.map((paragraph) => (
-            <Reveal key={paragraph} as="p" className="text-lead leading-snug">
-              {paragraph}
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-4" stagger={0.1}>
-          {about.stats.map((stat) => (
-            <div key={stat.label} className="border-t border-line pt-4">
-              <Counter
-                value={stat.value}
-                className="block font-display text-h2 leading-none"
-              />
-              <span className="label mt-3 block">{stat.label}</span>
-            </div>
-          ))}
-        </Reveal>
-      </section>
-
-      <section className="container-x" aria-labelledby="principles">
-        <Reveal as="h2" id="principles" className="text-h2">
-          Принципы
-        </Reveal>
-
-        <Reveal className="mt-8 border-t border-line" stagger={0.1}>
-          {about.principles.map((principle) => (
-            <Disclosure
-              key={principle.index}
-              index={principle.index}
-              title={principle.title}
-            >
-              {principle.description}
-            </Disclosure>
-          ))}
-        </Reveal>
-      </section>
-
-    </>
+    <Poster
+      label="01 / О нас"
+      caps="НЕБОЛЬШАЯ СТУДИЯ"
+      italic="с длинными отношениями"
+      lead={about.lead}
+      cta={{ href: "/contacts", label: "Обсудить проект" }}
+    />
   );
 }

@@ -4,44 +4,39 @@
    Дизайн-токены. Ребрендинг = правка значений в этом блоке.
 ------------------------------------------------------------------- */
 @theme {
-  /* Палитра. Основана на логотипе: графит #1a1e23 + лайм #82cd28. */
-  --color-bg: #f3f4f2;
-  --color-bg-alt: #e6e8e3;
-  --color-fg: #1a1e23;
-  --color-muted: #5f6873;
-  --color-line: #d2d6d1;
-  --color-inverse: #f3f4f2;
-  /* Лайм — для заливок и графики: как цвет текста на светлом фоне он не проходит по контрасту. */
-  --color-accent: #82cd28;
-  /* Тёмно-зелёный — для текстовых акцентов и мелких иконок. */
-  --color-accent-ink: #4a7d10;
+  /* Дефолтное поле — графит главной. Реальные значения подставляет
+     ThemeField: у каждого раздела свой цвет, как у референса. */
+  --color-bg: #14171a;
+  --color-fg: #f4f5f2;
+  --color-accent: #9ae63c;
+  --color-line: rgba(244, 245, 242, 0.22);
+  --color-muted: currentColor;
+  --color-bg-alt: rgba(0, 0, 0, 0.06);
+  --color-inverse: #f4f5f2;
+  --color-accent-ink: currentColor;
 
-  /* Шрифты. *-src подставляет next/font в layout.tsx. */
-  --font-display: var(--font-display-src), "Helvetica Neue", Arial, sans-serif;
-  --font-sans: var(--font-sans-src), "Helvetica Neue", Arial, sans-serif;
+  /* Антиква для дисплейных строк, моноширинный — для всего остального. */
+  --font-display: var(--font-display-src), Georgia, serif;
+  --font-sans: var(--font-sans-src), "SFMono-Regular", Menlo, monospace;
 
-  /* Типографическая шкала */
-  --text-hero: clamp(3rem, 12vw, 11rem);
-  --text-display: clamp(2.5rem, 7vw, 6rem);
-  --text-h2: clamp(2rem, 4.6vw, 3.75rem);
-  --text-h3: clamp(1.375rem, 2.2vw, 2rem);
-  --text-lead: clamp(1.125rem, 1.8vw, 1.625rem);
-  --text-body: clamp(1rem, 1.05vw, 1.125rem);
-  --text-label: 0.75rem;
+  /* Крупная строка занимает почти всю ширину экрана, как на плакате. */
+  --text-hero: clamp(2.25rem, 5vw, 4.5rem);
+  --text-display: clamp(2rem, 4.4vw, 4rem);
+  --text-h2: clamp(1.375rem, 2.2vw, 1.75rem);
+  --text-h3: clamp(1.125rem, 1.8vw, 1.5rem);
+  --text-lead: 0.875rem;
+  --text-body: 0.875rem;
+  --text-label: 0.6875rem;
 
-  /* Тайминги и кривые */
   --dur-fast: 0.3s;
   --dur-base: 0.6s;
   --dur-slow: 1.1s;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 
-  /* Сетка */
-  --gutter: clamp(1.25rem, 5vw, 5rem);
-  --header-h: 5.5rem;
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --header-h: 4.5rem;
 
-  /* Единый вертикальный ритм. Секция несёт свой нижний отступ,
-     последняя на странице — не несёт: отбивку даёт футер. */
   --section-y: clamp(3.5rem, 6vw, 6rem);
   --section-y-tight: clamp(2.5rem, 4vw, 4rem);
 }
@@ -68,9 +63,14 @@
     color: var(--color-fg);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.5;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    /* Переход между разделами читается как смена цветового поля. */
+    transition:
+      background-color 0.6s var(--ease-out-expo),
+      color 0.6s var(--ease-out-expo);
   }
 
   ::selection {
@@ -84,15 +84,14 @@
     border-radius: 2px;
   }
 
-  /* Вес 700 — начертание логотипа заметно жирнее обычного гротеска. */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 0.95;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 0.96;
     text-wrap: balance;
   }
 }
@@ -102,8 +101,6 @@
     padding-inline: var(--gutter);
   }
 
-  /* Вертикальный ритм. Отступ несёт сама секция, отбивка сверху приходит
-     от предыдущей — так между блоками не складываются двойные поля. */
   .section {
     padding-block: var(--section-y);
   }
@@ -117,28 +114,63 @@
     padding-bottom: var(--section-y-tight);
   }
 
-  /* Дисплейное начертание всегда жирное — как в логотипе. Наследование
-     закрывает заголовки, это правило — отдельные span/a с .font-display. */
-  .font-display {
-    font-weight: 700;
+  /* Плакат: композиция по центру экрана — основа всех разделов. */
+  .poster {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-block: calc(var(--header-h) + 2rem) 5rem;
   }
 
-  /* У жирного начертания крупные размеры визуально разрежаются. */
-  .text-hero,
-  .text-display {
-    letter-spacing: -0.04em;
-  }
-
-  .label {
-    font-size: var(--text-label);
-    letter-spacing: 0.16em;
+  /* Первая строка заголовка: антиква капсом, широкая разрядка. */
+  .display-caps {
+    font-family: var(--font-display);
+    font-weight: 400;
     text-transform: uppercase;
-    color: var(--color-muted);
-    font-family: var(--font-sans);
+    letter-spacing: 0.01em;
+    line-height: 0.95;
   }
 
-  /* Ссылка с подчёркиванием.
-     Без overflow: hidden — иначе он срезает выносные элементы букв. */
+  /* Вторая строка: курсив в акцентном цвете — фирменный приём референса. */
+  .display-italic {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-accent);
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+
+  /* Мелкая моноширинная строка: меню, подписи, служебный текст. */
+  .mono-label {
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Корпусный текст плаката: узкая колонка по центру. */
+  .poster-lead {
+    font-size: var(--text-lead);
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+    max-width: 46ch;
+    margin-inline: auto;
+  }
+
+  /* Вертикальная волосяная линия перед призывом — как у референса. */
+  .hairline {
+    width: 1px;
+    height: 4.5rem;
+    background: currentColor;
+    opacity: 0.45;
+    margin-inline: auto;
+  }
+
   .link-mask {
     position: relative;
     display: inline-block;
@@ -147,7 +179,7 @@
     content: "";
     position: absolute;
     left: 0;
-    bottom: 0.05em;
+    bottom: -0.25em;
     width: 100%;
     height: 1px;
     background: currentColor;
@@ -161,49 +193,13 @@
     transform: scaleX(1);
     transform-origin: left;
   }
-  /* Активный раздел подчёркнут фирменным лаймом — на заливке он читается,
-     в отличие от использования того же цвета для текста. */
-  .link-mask[data-active="true"]::after {
-    height: 2px;
-    background: var(--color-accent);
-  }
 
-  /* Плашка фирменного лайма: тёмный текст поверх — контраст ~9:1. */
-  .btn-accent {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--color-accent);
-    color: var(--color-fg);
-    padding: 0.75rem 1.5rem;
-    border-radius: 999px;
-    font-weight: 600;
-    transition:
-      transform var(--dur-fast) var(--ease-out-expo),
-      filter var(--dur-fast) var(--ease-out-expo);
+  /* Лента проектов прокручивается своей полосой, системная не нужна. */
+  .no-scrollbar {
+    scrollbar-width: none;
   }
-  .btn-accent:hover,
-  .btn-accent:focus-visible {
-    transform: translateY(-2px);
-    filter: brightness(1.05);
-  }
-
-  /* Фирменный акцент на слове в крупном заголовке — не заливка целиком,
-     а полоса под словом: она не спорит с буквами и не растёт вместе с кеглем.
-     Родителю нужен isolate, иначе подложка уедет за фон страницы. */
-  .accent-fill {
-    position: relative;
-    color: var(--color-fg);
-  }
-  .accent-fill::before {
-    content: "";
-    position: absolute;
-    left: -0.02em;
-    right: -0.02em;
-    bottom: 0.06em;
-    height: 0.16em;
-    background: var(--color-accent);
-    z-index: -1;
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
   .rule {

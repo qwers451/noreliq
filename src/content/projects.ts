@@ -33,6 +33,8 @@ export type Project = {
   client: string;
   year: string;
   role: string;
+  /** Короткая строка под названием — она идёт курсивом в ленте работ. */
+  subtitle?: string;
   /** Размер карточки в сетке: wide занимает обе колонки. */
   size?: "compact" | "wide";
   tags: string[];
@@ -49,6 +51,7 @@ export const projects: Project[] = [
     client: "DevContest",
     year: "2026",
     role: "Дизайн и разработка",
+    subtitle: "конкурсы с ИИ-оценкой",
     size: "compact",
     tags: ["Платформа", "Микросервисы", "ИИ-оценка", "Эскроу"],
     cover: "/projects/devcontest/cover.webp",
@@ -130,6 +133,7 @@ export const projects: Project[] = [
     client: "COURT 01",
     year: "2026",
     role: "Дизайн и разработка",
+    subtitle: "бронь стола за минуту",
     size: "compact",
     tags: ["Бронирование", "Клубный сервис", "Веб-приложение"],
     cover: "/projects/court-01/cover.webp",
@@ -204,6 +208,7 @@ export const projects: Project[] = [
     client: "Meet Up",
     year: "2025",
     role: "Дизайн и разработка",
+    subtitle: "карта друзей и ресторанов",
     size: "wide",
     tags: ["Веб-приложение", "Карта друзей", "Рестораны", "Бронирование"],
     cover: "/projects/meet-up/cover.webp",
@@ -266,6 +271,7 @@ export const projects: Project[] = [
     client: "Демонстрация услуги",
     year: "2026",
     role: "Дизайн и AI-визуализация",
+    subtitle: "AI-визуал вместо студии",
     size: "compact",
     tags: ["Маркетплейсы", "AI-визуализация", "Карточки товаров"],
     cover: "/projects/marketplace-cards/cover.webp",
@@ -329,6 +335,7 @@ export const projects: Project[] = [
     client: "Atlas Group",
     year: "2025",
     role: "Дизайн, фронтенд",
+    subtitle: "единый интерфейс команды",
     size: "compact",
     tags: ["Платформа", "Дизайн-система"],
     cover: "/placeholders/project-01.svg",
