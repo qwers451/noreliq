@@ -30,7 +30,7 @@ export default function ServicesPage() {
           {services.map((category) => (
             <article
               key={category.id}
-              className="flex flex-col border border-line p-7 transition-colors duration-500 hover:border-fg md:p-9"
+              className="flex flex-col border border-line p-6 transition-colors duration-500 hover:border-fg md:p-7"
             >
               {/* Код рубрики — строкой над заголовком, а не справа от него:
                   «AI AUTOMATION» с разрядкой не оставляет заголовку места
@@ -50,7 +50,7 @@ export default function ServicesPage() {
                   обе строки помещаются рядом. В двухколоночной сетке до xl
                   карточка слишком узкая: название ломалось бы на две строки,
                   а цена повисала у первой — поэтому там цена идёт под ним. */}
-              <ul className="mt-8 flex flex-col gap-3 border-t border-line pt-6">
+              <ul className="mt-6 flex flex-col gap-2 border-t border-line pt-5">
                 {category.tiers.map((tier) => (
                   <li
                     key={tier.title}
@@ -82,11 +82,11 @@ export default function ServicesPage() {
           Как идёт работа
         </Reveal>
 
-        <Reveal as="ol" className="mt-12 border-t border-line" stagger={0.1} y={30}>
+        <Reveal as="ol" className="mt-8 border-t border-line" stagger={0.1} y={30}>
           {process.map((step) => (
             <li
               key={step.index}
-              className="grid gap-3 border-b border-line py-8 md:grid-cols-[3rem_1fr_1.2fr] md:gap-x-4 md:gap-y-3"
+              className="grid gap-2 border-b border-line py-6 md:grid-cols-[3rem_1fr_1.2fr] md:gap-x-4"
             >
               <span className="label">{step.index}</span>
               <h3 className="font-display text-h3">{step.title}</h3>

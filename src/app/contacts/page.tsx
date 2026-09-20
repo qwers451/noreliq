@@ -26,7 +26,7 @@ export default function ContactsPage() {
           Прямые контакты
         </h2>
 
-        <Reveal className="border-t border-line pt-10">
+        <Reveal className="border-t border-line pt-8">
           <div>
             <a
               href={`mailto:${site.email}`}
@@ -36,7 +36,7 @@ export default function ContactsPage() {
             </a>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <a
               href={`tel:${site.phoneHref}`}
               className="link-mask block font-display text-[length:clamp(1.5rem,4.5vw,3.25rem)] leading-[1.1] text-muted hover:text-fg"
@@ -44,31 +44,22 @@ export default function ContactsPage() {
               {site.phone}
             </a>
           </div>
-        </Reveal>
-      </section>
 
-      <section className="container-x" aria-labelledby="socials">
-        <Reveal as="h2" id="socials" className="label">
-          Соцсети
-        </Reveal>
-
-        <Reveal as="ul" className="mt-6 border-t border-line" stagger={0.08} y={24}>
-          {site.socials.map((social) => (
-            <li key={social.label}>
+          {/* Соцсети живут здесь же: ради одной ссылки отдельный раздел не нужен. */}
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            {site.socials.map((social) => (
               <a
+                key={social.label}
                 href={social.href}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="group grid grid-cols-[1fr_auto] items-baseline gap-x-6 gap-y-1 border-b border-line py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_1.5rem]"
+                className="link-mask inline-flex items-center gap-2 text-muted hover:text-fg"
               >
-                <span className="font-display text-h3">{social.label}</span>
-                <span className="text-muted md:order-none order-last">{social.handle}</span>
-                <span aria-hidden="true" className="text-accent-ink md:text-right">
-                  ↗
-                </span>
+                {social.label}
+                <span className="text-accent-ink">{social.handle}</span>
               </a>
-            </li>
-          ))}
+            ))}
+          </div>
         </Reveal>
       </section>
 

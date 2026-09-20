@@ -97,7 +97,7 @@ export default async function ProjectPage({ params }: PageProps) {
         </Reveal>
       </section>
 
-      <div className="container-x section-b flex flex-col gap-16 md:gap-24">
+      <div className="container-x section-b flex flex-col gap-12 md:gap-16">
         {project.blocks.map((block, index) => {
           if (block.type === "text") {
             return (

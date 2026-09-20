@@ -22,7 +22,7 @@ export default function ProjectsPage() {
       />
 
       <section className="container-x" aria-label="Список проектов">
-        <div className="grid gap-x-10 gap-y-20 md:grid-cols-2">
+        <div className="grid gap-x-10 gap-y-14 md:grid-cols-2">
           {projects.map((project, index) => (
             <Reveal
               key={project.slug}

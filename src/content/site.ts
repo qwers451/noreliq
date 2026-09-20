@@ -20,7 +20,7 @@ export const site = {
   city: "Санкт-Петербург",
   foundedYear: 2019,
   socials: [
-    { label: "Telegram", href: "https://t.me/noreliq", handle: "@noreliq" },
+    { label: "Telegram", href: "https://t.me/noreliq_dev", handle: "@noreliq_dev" },
   ] satisfies SocialLink[],
 } as const;
 

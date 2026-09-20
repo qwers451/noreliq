@@ -42,8 +42,8 @@
 
   /* Единый вертикальный ритм. Секция несёт свой нижний отступ,
      последняя на странице — не несёт: отбивку даёт футер. */
-  --section-y: clamp(5rem, 10vw, 9rem);
-  --section-y-tight: clamp(3.5rem, 6vw, 5.5rem);
+  --section-y: clamp(3.5rem, 6vw, 6rem);
+  --section-y-tight: clamp(2.5rem, 4vw, 4rem);
 }
 
 @layer base {
