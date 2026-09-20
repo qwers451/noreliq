@@ -1,67 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { useReducedMotion } from "@/lib/useReducedMotion";
 import { TransitionLink } from "@/components/motion/TransitionLink";
+import { fieldForPath, fields } from "@/content/themes";
 import { homeHref, nav } from "@/content/nav";
 import { site } from "@/content/site";
 
-/** Ниже этой отметки шапка начинает прятаться — чтобы не мигала у самого верха. */
-const HIDE_AFTER = 160;
-
+/**
+ * Шапка-минимум, как у референса: знак слева, мелкое меню капсом справа.
+ * Никаких подложек и теней — она лежит прямо на цветовом поле страницы.
+ */
 export function Header() {
   const pathname = usePathname();
-  const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
-  /* Анимируем внутренний бар, а не сам <header>: см. комментарий у разметки. */
-  const barRef = useRef<HTMLDivElement>(null);
 
-  /* Блокируем скролл под открытым меню. */
   useEffect(() => {
     document.documentElement.classList.toggle("is-menu-open", open);
     return () => document.documentElement.classList.remove("is-menu-open");
   }, [open]);
-
-  /* Скролл вниз — шапка уезжает, вверх — возвращается. */
-  useEffect(() => {
-    const el = barRef.current;
-    if (!el) return;
-
-    // При открытом меню шапка обязана оставаться на месте: в ней кнопка «Закрыть».
-    if (open) {
-      gsap.set(el, { yPercent: 0 });
-      return;
-    }
-
-    if (reduced !== false) return;
-
-    let hidden = false;
-    const setHidden = (next: boolean) => {
-      if (next === hidden) return;
-      hidden = next;
-      gsap.to(el, { yPercent: next ? -100 : 0, duration: 0.4, ease: "power3.out" });
-    };
-
-    // Через ScrollTrigger, а не через window.scroll: он уже синхронизирован
-    // с Lenis, поэтому программная прокрутка не оставляет шапку спрятанной.
-    const trigger = ScrollTrigger.create({
-      start: 0,
-      end: "max",
-      onUpdate: (self) => {
-        setHidden(self.direction === 1 && self.scroll() > HIDE_AFTER);
-      },
-    });
-
-    return () => {
-      trigger.kill();
-      gsap.set(el, { yPercent: 0 });
-    };
-  }, [open, reduced]);
 
   useEffect(() => {
     if (!open) return;
@@ -72,51 +32,42 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const closeMenu = () => setOpen(false);
+  const darkField = fields[fieldForPath(pathname)].dark;
 
   const isActive = (href: string) =>
     href === homeHref ? pathname === href : pathname.startsWith(href);
 
   return (
-    /* <header> обязан остаться без transform, пока внутри него живёт мобильное меню
-       с position: fixed: любой transform делает предка containing block, меню
-       перестаёт считаться от вьюпорта, схлопывается до высоты своих паддингов —
-       и светлые пункты оказываются на белом фоне страницы. Прячем при скролле
-       только внутренний бар (barRef). */
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      <div
-        ref={barRef}
-        className={clsx(
-          "container-x pointer-events-auto flex h-[var(--header-h)] items-center justify-between transition-colors duration-300",
-          open ? "text-inverse" : "text-fg",
-        )}
-      >
+      <div className="container-x pointer-events-auto flex h-[var(--header-h)] items-center justify-between">
         <TransitionLink
           href={homeHref}
           className="block"
           aria-label={`${site.name} — на главную`}
+          onClick={() => setOpen(false)}
         >
-          {/* На тёмном фоне открытого меню показываем светлую версию знака. */}
+          {/* На тёмных полях знак берём в светлой версии, иначе графит
+              сливается с фоном. */}
           <Image
-            src={open ? "/brand/logo-full-light.webp" : "/brand/logo-full.webp"}
+            src={darkField ? "/brand/logo-mark-light.webp" : "/brand/logo-mark.webp"}
             alt={site.name}
-            width={420}
-            height={167}
-            sizes="(max-width: 768px) 96px, 120px"
+            width={160}
+            height={133}
+            sizes="34px"
             priority
-            className="h-9 w-auto md:h-11"
+            className="h-[34px] w-auto"
           />
         </TransitionLink>
 
         <nav aria-label="Основная навигация" className="hidden md:block">
-          <ul className="flex items-center gap-8">
+          <ul className="flex items-center gap-7">
             {nav.map((item) => (
               <li key={item.href}>
                 <TransitionLink
                   href={item.href}
                   data-active={isActive(item.href)}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className="link-mask text-sm"
+                  className="mono-label link-mask"
                 >
                   {item.label}
                 </TransitionLink>
@@ -131,53 +82,52 @@ export function Header() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Закрыть меню" : "Открыть меню"}
-          className="relative z-10 flex h-10 w-10 flex-col items-center justify-center gap-[6px] md:hidden"
+          className="mono-label relative z-10 md:hidden"
         >
-          <span
-            className={clsx(
-              "block h-px w-6 bg-current transition-transform duration-300",
-              open && "translate-y-[3.5px] rotate-45",
-            )}
-          />
-          <span
-            className={clsx(
-              "block h-px w-6 bg-current transition-transform duration-300",
-              open && "-translate-y-[3.5px] -rotate-45",
-            )}
-          />
+          {open ? "Закрыть" : "Меню"}
         </button>
       </div>
 
+      {/* Меню не прячем через hidden: тогда оно появляется рывком.
+          Держим в потоке и анимируем прозрачность с лёгким подъёмом. */}
       <div
         id="mobile-menu"
-        hidden={!open}
-        className="pointer-events-auto fixed inset-0 z-[-1] flex flex-col justify-between bg-fg px-[var(--gutter)] pb-10 pt-[var(--header-h)] text-inverse md:hidden"
+        aria-hidden={!open}
+        className={clsx(
+          "fixed inset-0 z-[-1] flex flex-col items-center justify-center gap-6 bg-bg px-[var(--gutter)] text-center transition-[opacity,transform] duration-500 ease-[var(--ease-out-expo)] md:hidden",
+          open
+            ? "pointer-events-auto translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0",
+        )}
       >
-        <nav aria-label="Мобильная навигация" className="mt-12">
-          <ul className="flex flex-col gap-2">
-            {nav.map((item) => (
-              <li key={item.href}>
-                <TransitionLink
-                  href={item.href}
-                  onClick={closeMenu}
-                  className="flex items-baseline gap-4 py-2 font-display text-[length:clamp(2.5rem,12vw,4rem)] leading-[1.05]"
-                >
-                  <span className="text-xs tracking-[0.16em] text-inverse/50">{item.index}</span>
-                  {item.label}
-                </TransitionLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {nav.map((item, index) => (
+          <TransitionLink
+            key={item.href}
+            href={item.href}
+            onClick={() => setOpen(false)}
+            className={clsx(
+              "display-caps text-[length:clamp(2rem,10vw,3rem)] transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)]",
+              open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
+            )}
+            style={{ transitionDelay: open ? `${120 + index * 70}ms` : "0ms" }}
+            tabIndex={open ? undefined : -1}
+          >
+            {item.label}
+          </TransitionLink>
+        ))}
 
-        <div className="flex flex-col gap-1 text-sm text-inverse/70">
-          <a href={`mailto:${site.email}`} onClick={closeMenu} className="link-mask">
-            {site.email}
-          </a>
-          <a href={`tel:${site.phoneHref}`} onClick={closeMenu} className="link-mask">
-            {site.phone}
-          </a>
-        </div>
+        <a
+          href={`mailto:${site.email}`}
+          onClick={() => setOpen(false)}
+          className={clsx(
+            "mono-label link-mask mt-6 transition-opacity duration-700",
+            open ? "opacity-70" : "opacity-0",
+          )}
+          style={{ transitionDelay: open ? "400ms" : "0ms" }}
+          tabIndex={open ? undefined : -1}
+        >
+          {site.email}
+        </a>
       </div>
     </header>
   );

@@ -15,11 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { scrollToTop } from "@/components/motion/SmoothScroll";
-import {
-  defaultVariant,
-  getVariant,
-  type TransitionVariant,
-} from "@/components/motion/transitions";
+import { fieldForPath, fields } from "@/content/themes";
 import { site } from "@/content/site";
 
 type TransitionContextValue = {
@@ -34,8 +30,6 @@ const TransitionContext = createContext<TransitionContextValue>({
 export function useTransitionRouter() {
   return useContext(TransitionContext);
 }
-
-const PANELS = [0, 1, 2, 3, 4];
 
 /**
  * При `trailingSlash: true` (статический экспорт) `usePathname()` отдаёт путь
@@ -56,8 +50,6 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const preloaderRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const coveredRef = useRef(false);
-  // Вариант, которым закрывали экран: «выезд» обязан совпасть с «въездом».
-  const variantRef = useRef<TransitionVariant>(defaultVariant);
   const previousPath = useRef(pathname);
   const [progress, setProgress] = useState(0);
 
@@ -85,9 +77,9 @@ export function PageTransition({ children }: { children: ReactNode }) {
     })
       .to(counterRef.current, { autoAlpha: 0, duration: 0.2 }, ">-0.1")
       .to(preloader, {
-        yPercent: -100,
-        duration: 0.6,
-        ease: "power4.inOut",
+        autoAlpha: 0,
+        duration: 0.7,
+        ease: "power2.inOut",
       })
       .set(preloader, { display: "none" });
 
@@ -97,9 +89,9 @@ export function PageTransition({ children }: { children: ReactNode }) {
     };
   }, [reduced]);
 
-  /* Переход «внутрь» новой страницы, когда маршрут уже сменился. */
+  /* Когда маршрут сменился — плавно уводим заливку. */
   useEffect(() => {
-    if (previousPath.current === pathname) return;
+    if (normalizePath(previousPath.current) === normalizePath(pathname)) return;
     previousPath.current = pathname;
 
     scrollToTop();
@@ -110,8 +102,6 @@ export function PageTransition({ children }: { children: ReactNode }) {
       return;
     }
 
-    const variant = variantRef.current;
-    const panels = curtain.querySelectorAll<HTMLElement>("[data-panel]");
     const tl = gsap.timeline({
       onComplete: () => {
         coveredRef.current = false;
@@ -120,14 +110,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
       },
     });
 
-    tl.to(panels, {
-      ...variant.to,
-      duration: variant.revealDuration,
-      ease: "power4.inOut",
-      stagger: variant.stagger,
-      // Сбрасываем ось, по которой панель не двигается в этом варианте.
-      ...(variant.to.xPercent === undefined ? { xPercent: 0 } : { yPercent: 0 }),
-    }).set(panels, { xPercent: 0, yPercent: 0, ...variant.from });
+    tl.to(curtain, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" });
 
     return () => {
       tl.kill();
@@ -136,6 +119,8 @@ export function PageTransition({ children }: { children: ReactNode }) {
 
   const navigate = useCallback(
     (href: string) => {
+      // В статическом экспорте у путей есть завершающий слеш, поэтому
+      // сравниваем нормализованные значения.
       if (normalizePath(href) === normalizePath(pathname)) return;
 
       const curtain = curtainRef.current;
@@ -144,24 +129,18 @@ export function PageTransition({ children }: { children: ReactNode }) {
         return;
       }
 
-      const variant = getVariant(href);
-      variantRef.current = variant;
-
+      // Заливка в цвет следующего раздела: переход читается как смена
+      // цветового поля, без резких панелей.
+      const next = fields[fieldForPath(href)];
       coveredRef.current = true;
-      gsap.set(curtain, {
-        visibility: "visible",
-        pointerEvents: "auto",
-        flexDirection: variant.layout === "rows" ? "column" : "row",
-      });
+      gsap.set(curtain, { backgroundColor: next.bg, pointerEvents: "auto" });
       gsap.fromTo(
-        curtain.querySelectorAll<HTMLElement>("[data-panel]"),
-        { xPercent: 0, yPercent: 0, ...variant.from },
+        curtain,
+        { autoAlpha: 0 },
         {
-          xPercent: 0,
-          yPercent: 0,
-          duration: variant.coverDuration,
-          ease: "power4.inOut",
-          stagger: variant.stagger,
+          autoAlpha: 1,
+          duration: 0.55,
+          ease: "power2.inOut",
           onComplete: () => router.push(href),
         },
       );
@@ -177,13 +156,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
         ref={curtainRef}
         aria-hidden="true"
         className="motion-only invisible pointer-events-none fixed inset-0 z-[90]"
-      >
-        {PANELS.map((panel) => (
-          // Без h-full: в варианте с горизонтальными полосами высоту
-          // раздаёт flex-контейнер, и фиксированная высота ломала бы раскладку.
-          <div key={panel} data-panel className="flex-1 bg-fg" />
-        ))}
-      </div>
+      />
 
       <div
         ref={preloaderRef}

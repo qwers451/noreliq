@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
-import { PageHero } from "@/components/ui/PageHero";
+import { Poster } from "@/components/ui/Poster";
 import { legal } from "@/content/legal";
 import { site } from "@/content/site";
 
@@ -14,104 +14,65 @@ export const metadata: Metadata = {
 export default function ContactsPage() {
   return (
     <>
-      <PageHero
-        label="04 / Контакты"
-        title="Расскажите, что нужно сделать"
-        titleClassName="max-w-[16ch]"
-        lead="Напишите пару строк о задаче и сроках — ответим в течение рабочего дня и предложим формат работы."
-      />
+      <Poster caps="ДАВАЙТЕ" italic="поработаем вместе" label="04 / Контакты" />
 
-      <section className="container-x section-b" aria-labelledby="direct">
-        <h2 id="direct" className="sr-only">
-          Прямые контакты
-        </h2>
+      {/* Контакты выведены отдельным блоком внутри того же экрана:
+          у референса под заголовком идёт такой же центрированный столбик. */}
+      <section className="container-x -mt-[26svh] pb-24 text-center">
+        <Reveal className="flex flex-col items-center gap-1" immediate delay={0.3}>
+          <a href={`mailto:${site.email}`} className="link-mask">
+            {site.email}
+          </a>
+          <a href={`tel:${site.phoneHref}`} className="link-mask">
+            {site.phone}
+          </a>
+          <p className="opacity-70">{site.city}</p>
+        </Reveal>
 
-        <Reveal className="border-t border-line pt-8">
-          <div>
+        <Reveal className="mt-8 flex flex-wrap items-center justify-center gap-5" delay={0.36} immediate>
+          {site.socials.map((social) => (
             <a
-              href={`mailto:${site.email}`}
-              className="link-mask block break-words font-display text-[length:clamp(1.75rem,6.5vw,4.5rem)] leading-[1.1] hover:text-accent-ink"
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mono-label link-mask"
             >
-              {site.email}
+              {social.label}
             </a>
-          </div>
-
-          <div className="mt-6">
-            <a
-              href={`tel:${site.phoneHref}`}
-              className="link-mask block font-display text-[length:clamp(1.5rem,4.5vw,3.25rem)] leading-[1.1] text-muted hover:text-fg"
-            >
-              {site.phone}
-            </a>
-          </div>
-
-          {/* Соцсети живут здесь же: ради одной ссылки отдельный раздел не нужен. */}
-          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
-            {site.socials.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="link-mask inline-flex items-center gap-2 text-muted hover:text-fg"
-              >
-                {social.label}
-                <span className="text-accent-ink">{social.handle}</span>
-              </a>
-            ))}
-          </div>
+          ))}
         </Reveal>
       </section>
 
-      <section className="container-x" aria-labelledby="legal">
-        <Reveal as="h2" id="legal" className="label">
+      {/* Реквизиты обязательны для ИП, но на плакат не просятся —
+          поэтому они ниже, за пределами первого экрана. */}
+      <section className="container-x section-b" aria-labelledby="legal">
+        <Reveal as="h2" id="legal" className="mono-label text-center opacity-60">
           Реквизиты
         </Reveal>
 
         <Reveal
           as="dl"
-          className="mt-6 grid gap-x-10 gap-y-6 border-t border-line pt-6 sm:grid-cols-2"
-          stagger={0.06}
+          className="mx-auto mt-8 grid max-w-3xl gap-x-10 gap-y-5 border-t border-line pt-8 sm:grid-cols-2"
+          stagger={0.05}
           y={16}
         >
-          <div>
-            <dt className="label">Сокращённое наименование</dt>
-            <dd className="mt-1">{legal.shortName}</dd>
-          </div>
-          <div>
-            <dt className="label">Полное наименование</dt>
-            <dd className="mt-1">{legal.fullName}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="label">Адрес</dt>
-            <dd className="mt-1">{legal.address}</dd>
-          </div>
-          <div>
-            <dt className="label">Расчётный счёт</dt>
-            <dd className="mt-1">
-              {legal.bank.account} ({legal.bank.currency})
-            </dd>
-          </div>
-          <div>
-            <dt className="label">Банк</dt>
-            <dd className="mt-1">{legal.bank.name}</dd>
-          </div>
-          <div>
-            <dt className="label">БИК</dt>
-            <dd className="mt-1">{legal.bank.bic}</dd>
-          </div>
-          <div>
-            <dt className="label">Корр. счёт</dt>
-            <dd className="mt-1">{legal.bank.corrAccount}</dd>
-          </div>
-          <div>
-            <dt className="label">ИНН банка</dt>
-            <dd className="mt-1">{legal.bank.inn}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="label">Адрес банка</dt>
-            <dd className="mt-1">{legal.bank.address}</dd>
-          </div>
+          {[
+            ["Сокращённое наименование", legal.shortName],
+            ["Полное наименование", legal.fullName],
+            ["Адрес", legal.address],
+            ["Расчётный счёт", `${legal.bank.account} (${legal.bank.currency})`],
+            ["Банк", legal.bank.name],
+            ["БИК", legal.bank.bic],
+            ["Корр. счёт", legal.bank.corrAccount],
+            ["ИНН банка", legal.bank.inn],
+            ["Адрес банка", legal.bank.address],
+          ].map(([term, value]) => (
+            <div key={term}>
+              <dt className="mono-label opacity-60">{term}</dt>
+              <dd className="mt-1">{value}</dd>
+            </div>
+          ))}
         </Reveal>
       </section>
     </>
