@@ -44,9 +44,11 @@ export function Poster({
         <Reveal as="span" className={clsx("display-caps block", titleSize)} immediate>
           {caps}
         </Reveal>
+        {/* Комментарий идёт подзаголовком: раньше он был набран тем же
+            кеглем, что и заголовок, и перетягивал внимание на себя. */}
         <Reveal
           as="span"
-          className={clsx("display-italic block", titleSize)}
+          className="display-note mt-4 block text-[length:clamp(0.9375rem,1.7vw,1.375rem)]"
           immediate
           delay={0.08}
         >
@@ -63,7 +65,7 @@ export function Poster({
       {cta ? (
         <Reveal className="mt-12 flex flex-col items-center gap-6" immediate delay={0.24}>
           <span aria-hidden="true" className="hairline" />
-          <TransitionLink href={cta.href} className="mono-label link-mask">
+          <TransitionLink href={cta.href} className="mono-label link-mask tap-target">
             {cta.label}
           </TransitionLink>
         </Reveal>

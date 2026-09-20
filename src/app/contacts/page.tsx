@@ -14,16 +14,16 @@ export const metadata: Metadata = {
 export default function ContactsPage() {
   return (
     <>
-      <Poster caps="ДАВАЙТЕ" italic="поработаем вместе" label="04 / Контакты" />
+      <Poster caps="Давайте поработаем" italic="расскажите о задаче" label="04 / Контакты" />
 
       {/* Контакты выведены отдельным блоком внутри того же экрана:
           у референса под заголовком идёт такой же центрированный столбик. */}
       <section className="container-x -mt-[26svh] pb-24 text-center">
         <Reveal className="flex flex-col items-center gap-1" immediate delay={0.3}>
-          <a href={`mailto:${site.email}`} className="link-mask">
+          <a href={`mailto:${site.email}`} className="link-mask tap-target">
             {site.email}
           </a>
-          <a href={`tel:${site.phoneHref}`} className="link-mask">
+          <a href={`tel:${site.phoneHref}`} className="link-mask tap-target">
             {site.phone}
           </a>
           <p className="opacity-70">{site.city}</p>
@@ -36,7 +36,7 @@ export default function ContactsPage() {
               href={social.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="mono-label link-mask"
+              className="mono-label link-mask tap-target"
             >
               {social.label}
             </a>

@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { scrollToTop } from "@/components/motion/SmoothScroll";
 import { fieldForPath, fields } from "@/content/themes";
@@ -65,20 +65,19 @@ export function PageTransition({ children }: { children: ReactNode }) {
     const tl = gsap.timeline({
       onComplete: () => {
         document.documentElement.classList.remove("is-loading");
-        ScrollTrigger.refresh();
       },
     });
 
     tl.to(counter, {
       value: 100,
-      duration: 0.8,
+      duration: 0.45,
       ease: "power2.inOut",
       onUpdate: () => setProgress(Math.round(counter.value)),
     })
       .to(counterRef.current, { autoAlpha: 0, duration: 0.2 }, ">-0.1")
       .to(preloader, {
         autoAlpha: 0,
-        duration: 0.7,
+        duration: 0.45,
         ease: "power2.inOut",
       })
       .set(preloader, { display: "none" });
@@ -97,16 +96,12 @@ export function PageTransition({ children }: { children: ReactNode }) {
     scrollToTop();
 
     const curtain = curtainRef.current;
-    if (reduced !== false || !curtain || !coveredRef.current) {
-      ScrollTrigger.refresh();
-      return;
-    }
+    if (reduced !== false || !curtain || !coveredRef.current) return;
 
     const tl = gsap.timeline({
       onComplete: () => {
         coveredRef.current = false;
         gsap.set(curtain, { visibility: "hidden", pointerEvents: "none" });
-        ScrollTrigger.refresh();
       },
     });
 

@@ -16,7 +16,7 @@ export function Footer() {
 
         <a
           href={`mailto:${site.email}`}
-          className="mono-label link-mask pointer-events-auto hidden opacity-70 transition-opacity hover:opacity-100 sm:block"
+          className="mono-label link-mask tap-target pointer-events-auto hidden opacity-70 transition-opacity hover:opacity-100 sm:inline-flex"
         >
           {site.email}
         </a>

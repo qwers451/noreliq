@@ -17,7 +17,6 @@ type RevealProps = {
   y?: number;
   /** Каскад по прямым потомкам вместо анимации блока целиком. */
   stagger?: number;
-  start?: string;
   /** Анимировать сразу при монтировании, без ожидания скролла. */
   immediate?: boolean;
 };
@@ -31,7 +30,6 @@ export function Reveal({
   delay = 0,
   y = 12,
   stagger,
-  start = "top 95%",
   immediate = false,
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
@@ -47,7 +45,7 @@ export function Reveal({
     const children = Array.from(el.children);
     const targets = stagger && children.length > 0 ? children : el;
 
-    const ctx = gsap.context(() => {
+    const play = () => {
       gsap.set(el, { autoAlpha: 1 });
       gsap.from(targets, {
         y,
@@ -56,12 +54,34 @@ export function Reveal({
         ease: "expo.out",
         delay,
         stagger,
-        scrollTrigger: immediate ? undefined : { trigger: el, start, once: true },
       });
-    }, el);
+    };
 
-    return () => ctx.revert();
-  }, [reduced, delay, y, stagger, start, immediate]);
+    if (immediate) {
+      const ctx = gsap.context(play, el);
+      return () => ctx.revert();
+    }
+
+    // IntersectionObserver вместо ScrollTrigger: плагин весил 17 КБ в сжатом
+    // виде, а нужен был ровно один сценарий — «показать один раз, когда блок
+    // появился в окне».
+    let ctx: gsap.Context | undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        observer.disconnect();
+        ctx = gsap.context(play, el);
+      },
+      { rootMargin: "0px 0px -5% 0px" },
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert();
+    };
+  }, [reduced, delay, y, stagger, immediate]);
 
   return (
     <Tag ref={ref} id={id} data-anim="hidden" className={clsx(className)}>

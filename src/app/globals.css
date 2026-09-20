@@ -16,16 +16,17 @@
   --color-accent-ink: currentColor;
 
   /* Антиква для дисплейных строк, моноширинный — для всего остального. */
-  --font-display: var(--font-display-src), Georgia, serif;
+  --font-display: var(--font-display-src), "Helvetica Neue", Arial, sans-serif;
   --font-sans: var(--font-sans-src), "SFMono-Regular", Menlo, monospace;
+  --font-code: var(--font-code-src), "SFMono-Regular", Menlo, monospace;
 
   /* Крупная строка занимает почти всю ширину экрана, как на плакате. */
   --text-hero: clamp(2.25rem, 5vw, 4.5rem);
   --text-display: clamp(2rem, 4.4vw, 4rem);
   --text-h2: clamp(1.375rem, 2.2vw, 1.75rem);
   --text-h3: clamp(1.125rem, 1.8vw, 1.5rem);
-  --text-lead: 0.875rem;
-  --text-body: 0.875rem;
+  --text-lead: 0.9375rem;
+  --text-body: 0.9375rem;
   --text-label: 0.6875rem;
 
   --dur-fast: 0.3s;
@@ -61,16 +62,31 @@
   body {
     background-color: var(--color-bg);
     color: var(--color-fg);
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-size: var(--text-body);
-    line-height: 1.7;
-    letter-spacing: 0.04em;
+    line-height: 1.65;
+    letter-spacing: 0;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     /* Переход между разделами читается как смена цветового поля. */
     transition:
       background-color 0.6s var(--ease-out-expo),
       color 0.6s var(--ease-out-expo);
+  }
+
+  /* Лёгкое свечение сверху: плоская заливка выглядит бедно, а градиент
+     даёт ту же глубину, что у JetBrains, без лишней графики. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+      70% 45% at 50% -5%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent),
+      transparent 65%
+    );
   }
 
   ::selection {
@@ -89,9 +105,9 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    line-height: 0.96;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
     text-wrap: balance;
   }
 }
@@ -125,23 +141,26 @@
     padding-block: calc(var(--header-h) + 2rem) 5rem;
   }
 
-  /* Первая строка заголовка: антиква капсом, широкая разрядка. */
+  /* Первая строка заголовка: плотный геометрический гротеск. */
   .display-caps {
     font-family: var(--font-display);
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-    line-height: 0.95;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
   }
 
-  /* Вторая строка: курсив в акцентном цвете — фирменный приём референса. */
-  .display-italic {
-    font-family: var(--font-display);
+  /* Вторая строка — как комментарий в коде: моноширинный шрифт,
+     акцентный цвет и префикс //. Место курсива, только «по-айтишному». */
+  .display-note {
+    font-family: var(--font-code);
     font-weight: 400;
-    font-style: italic;
     color: var(--color-accent);
     letter-spacing: -0.01em;
-    line-height: 0.95;
+    line-height: 1.3;
+  }
+  .display-note::before {
+    content: "// ";
+    opacity: 0.55;
   }
 
   /* Мелкая моноширинная строка: меню, подписи, служебный текст. */
@@ -156,9 +175,8 @@
   /* Корпусный текст плаката: узкая колонка по центру. */
   .poster-lead {
     font-size: var(--text-lead);
-    line-height: 1.85;
-    letter-spacing: 0.04em;
-    max-width: 46ch;
+    line-height: 1.7;
+    max-width: 52ch;
     margin-inline: auto;
   }
 
@@ -174,6 +192,11 @@
   .link-mask {
     position: relative;
     display: inline-block;
+    transition: opacity var(--dur-fast) var(--ease-out-expo);
+  }
+  /* Отклик на нажатие: на тач-устройствах без него интерфейс кажется мёртвым. */
+  .link-mask:active {
+    opacity: 0.6;
   }
   .link-mask::after {
     content: "";
@@ -192,6 +215,13 @@
   .link-mask[data-active="true"]::after {
     transform: scaleX(1);
     transform-origin: left;
+  }
+
+  /* Зона нажатия под палец у мелких подписей-ссылок. */
+  .tap-target {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
   }
 
   /* Лента проектов прокручивается своей полосой, системная не нужна. */

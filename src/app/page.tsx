@@ -14,8 +14,8 @@ export default function HomePage() {
     <Poster
       size="hero"
       label={`${site.tagline} · ${site.city}`}
-      caps="NORELIQ"
-      italic="цифровые продукты"
+      caps="Noreliq"
+      italic="цифровые продукты и сервисы с ИИ"
       lead={site.intro}
       cta={{ href: "/projects", label: "Смотреть работы" }}
     />

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ServicesPage() {
   return (
     <>
-      <Poster label="02 / Услуги" caps="ЧТО МЫ" italic="умеем делать" />
+      <Poster label="02 / Услуги" caps="Что мы умеем" italic="форматы работ и цены" />
 
       {/* Список направлений: крупная антиква и цены моноширинным —
           без описаний на несколько абзацев. */}
@@ -55,7 +55,7 @@ export default function ServicesPage() {
 
           <Reveal className="mt-14 flex flex-col items-center gap-6" y={20}>
             <span aria-hidden="true" className="hairline" />
-            <TransitionLink href="/contacts" className="mono-label link-mask">
+            <TransitionLink href="/contacts" className="mono-label link-mask tap-target">
               Обсудить задачу
             </TransitionLink>
           </Reveal>

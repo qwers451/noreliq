@@ -64,7 +64,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </Reveal>
           <Reveal
             as="span"
-            className="display-italic block text-display"
+            className="display-note mt-4 block text-[length:clamp(0.9375rem,1.7vw,1.375rem)]"
             immediate
             delay={0.08}
           >

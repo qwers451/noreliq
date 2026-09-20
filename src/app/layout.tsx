@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { IBM_Plex_Mono, JetBrains_Mono, Manrope } from "next/font/google";
 
 import "./globals.css";
 
@@ -12,21 +12,31 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { site } from "@/content/site";
 
-// Высококонтрастная антиква вместо Bodoni: у неё есть кириллица и курсив,
-// на котором держится вся типографика референса.
-const display = Playfair_Display({
+// Геометрический гротеск для заголовков — в духе JetBrains Sans.
+// Антиква с курсивом ушла: от неё сайт читался как дизайнерское портфолио,
+// а не как студия разработки.
+const display = Manrope({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  weight: ["400", "800"],
   variable: "--font-display-src",
   display: "swap",
 });
 
-// Моноширинный для всего мелкого текста: меню, подписи, абзацы.
+// Моноширинный для интерфейсных подписей и меты.
 const mono = JetBrains_Mono({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500"],
+  weight: ["500"],
   variable: "--font-sans-src",
+  display: "swap",
+});
+
+// Второй моноширинный — для «кодовых» строк: подзаголовков-комментариев,
+// индексов и тегов. Отличается от JetBrains Mono рисунком, поэтому служебное
+// и акцентное не сливаются.
+const code = IBM_Plex_Mono({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400"],
+  variable: "--font-code-src",
   display: "swap",
 });
 
@@ -74,7 +84,7 @@ export default function RootLayout({
     // на <html> до гидрации, и React иначе ругается на расхождение атрибутов.
     <html
       lang="ru"
-      className={`${display.variable} ${mono.variable}`}
+      className={`${display.variable} ${mono.variable} ${code.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

@@ -11,8 +11,8 @@ export default function NotFound() {
   return (
     <Poster
       label="Ошибка 404"
-      caps="ТАКОЙ СТРАНИЦЫ"
-      italic="здесь нет"
+      caps="Такой страницы нет"
+      italic="проверьте адрес"
       lead="Возможно, ссылка устарела. Вернитесь на главную или загляните в работы."
       cta={{ href: "/", label: "На главную" }}
     />

@@ -84,64 +84,83 @@ export function HorizontalProjects({ projects }: Props) {
       setProgress(max > 0 ? track.scrollLeft / max : 0);
       // Пальцем прокрутили — цель догоняет фактическую позицию.
       if (!frame) target = track.scrollLeft;
+
+      // Активной считаем карточку, ближайшую к центру экрана: на тач-
+      // устройствах события наведения не приходят, и без этого описание
+      // показывалось бы только у первой карточки.
+      const centre = track.scrollLeft + track.clientWidth / 2;
+      const cards = [...track.children] as HTMLElement[];
+      let best = 0;
+      let bestDistance = Infinity;
+      cards.forEach((card, index) => {
+        const cardCentre = card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(cardCentre - centre);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = index;
+        }
+      });
+      setActive(best);
     };
 
-    /* Перетаскивание мышью. Клик по карточке не ломаем: переход отменяем
-       только если курсор реально увели в сторону. */
+    /* Перетаскивание мышью на mouse-событиях и на окне. Pointer-события
+       здесь не годятся: браузер шлёт pointercancel, как только считает
+       движение прокруткой, и жест обрывался после первого шага. */
     let dragging = false;
     let moved = false;
     let startX = 0;
     let startLeft = 0;
 
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.pointerType === "touch" || event.button !== 0) return;
+    const onMouseDown = (event: MouseEvent) => {
+      if (event.button !== 0) return;
       dragging = true;
       moved = false;
       startX = event.clientX;
       startLeft = track.scrollLeft;
-      // Захват указателя ставим один раз здесь: повторный вызов на каждом
-      // движении бросает исключение и обрывает перетаскивание.
-      try {
-        track.setPointerCapture(event.pointerId);
-      } catch {
-        /* браузер может отказать в захвате — перетаскивание всё равно работает */
-      }
     };
 
-    const onPointerMove = (event: PointerEvent) => {
+    const onMouseMove = (event: MouseEvent) => {
       if (!dragging) return;
       const delta = event.clientX - startX;
-      if (Math.abs(delta) > 4) moved = true;
+      // Порог в 6px: короткое дрожание руки при клике не считаем жестом,
+      // иначе проект перестаёт открываться.
+      if (Math.abs(delta) > 6) moved = true;
+      if (!moved) return;
+      event.preventDefault();
       track.scrollLeft = startLeft - delta;
       target = track.scrollLeft;
     };
 
-    const onPointerUp = () => {
+    const onMouseUp = () => {
       dragging = false;
+      // Сбрасываем с задержкой: click приходит сразу после отпускания,
+      // и он должен увидеть, что это было перетаскивание.
+      if (moved) window.setTimeout(() => (moved = false), 0);
     };
+
+    const onDragStart = (event: Event) => event.preventDefault();
 
     const onClickCapture = (event: MouseEvent) => {
       if (!moved) return;
       event.preventDefault();
       event.stopPropagation();
-      moved = false;
     };
 
     track.addEventListener("wheel", onWheel, { passive: false });
     track.addEventListener("scroll", onScroll, { passive: true });
-    track.addEventListener("pointerdown", onPointerDown);
-    track.addEventListener("pointermove", onPointerMove);
-    track.addEventListener("pointerup", onPointerUp);
-    track.addEventListener("pointercancel", onPointerUp);
+    track.addEventListener("mousedown", onMouseDown);
+    track.addEventListener("dragstart", onDragStart);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
     track.addEventListener("click", onClickCapture, true);
 
     return () => {
       track.removeEventListener("wheel", onWheel);
       track.removeEventListener("scroll", onScroll);
-      track.removeEventListener("pointerdown", onPointerDown);
-      track.removeEventListener("pointermove", onPointerMove);
-      track.removeEventListener("pointerup", onPointerUp);
-      track.removeEventListener("pointercancel", onPointerUp);
+      track.removeEventListener("mousedown", onMouseDown);
+      track.removeEventListener("dragstart", onDragStart);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
       track.removeEventListener("click", onClickCapture, true);
       if (frame) cancelAnimationFrame(frame);
     };
@@ -151,7 +170,7 @@ export function HorizontalProjects({ projects }: Props) {
     <div className="flex h-full flex-col justify-center">
       <div
         ref={trackRef}
-        className="no-scrollbar flex cursor-grab items-start gap-8 overflow-x-auto px-[var(--gutter)] pb-2 active:cursor-grabbing md:gap-12"
+        className="no-scrollbar flex cursor-grab snap-x snap-proximity items-start gap-8 overflow-x-auto px-[calc(50%-37vw)] pb-2 active:cursor-grabbing md:gap-12 md:px-[calc(50%-12vw)]"
         aria-label="Лента проектов"
       >
         {visible.map((project, index) => {
@@ -162,12 +181,12 @@ export function HorizontalProjects({ projects }: Props) {
               key={project.slug}
               onMouseEnter={() => setActive(index)}
               onFocusCapture={() => setActive(index)}
-              className="w-[74vw] shrink-0 md:w-[24vw]"
+              className="w-[74vw] shrink-0 snap-center md:w-[24vw]"
             >
               <TransitionLink href={`/projects/${project.slug}`} className="block">
                 {/* Активная карточка чуть крупнее — так лента получает
                     фокус внимания, как в референсе. */}
-                <div className="relative h-[28svh] w-full overflow-hidden">
+                <div className="relative h-[24svh] w-full overflow-hidden md:h-[28svh]">
                   <Image
                     src={project.cover}
                     alt={`Обложка проекта ${project.title}`}
@@ -175,6 +194,7 @@ export function HorizontalProjects({ projects }: Props) {
                     sizes="(max-width: 768px) 74vw, 24vw"
                     quality={92}
                     priority={index < 2}
+                    draggable={false}
                     className={clsx(
                       "object-cover transition-all duration-700 ease-[var(--ease-out-expo)]",
                       isActive ? "scale-[1.04] opacity-100" : "scale-100 opacity-65",
@@ -184,7 +204,7 @@ export function HorizontalProjects({ projects }: Props) {
 
                 <h2 className="mt-5">
                   <span className="display-caps block text-h2">{project.title}</span>
-                  <span className="display-italic block text-h2">
+                  <span className="display-note mt-2 block text-[0.9375rem]">
                     {project.subtitle ?? project.role.toLowerCase()}
                   </span>
                 </h2>
@@ -197,12 +217,12 @@ export function HorizontalProjects({ projects }: Props) {
                 {/* Описание и мета показываются только у активной карточки. */}
                 <div
                   className={clsx(
-                    "mt-5 h-36 transition-[opacity,transform] duration-1000 ease-[var(--ease-out-expo)]",
+                    "mt-4 h-24 transition-[opacity,transform] duration-1000 ease-[var(--ease-out-expo)] md:mt-5 md:h-36",
                     isActive ? "translate-y-0 opacity-100 delay-100" : "translate-y-2 opacity-0 delay-0",
                   )}
                   aria-hidden={!isActive}
                 >
-                  <p className="line-clamp-4 max-w-[34ch] leading-relaxed">{project.summary}</p>
+                  <p className="line-clamp-2 max-w-[34ch] leading-relaxed md:line-clamp-4">{project.summary}</p>
                   <p className="mono-label mt-3 opacity-60">
                     {project.tags[0]} · {project.year}
                   </p>
@@ -213,12 +233,15 @@ export function HorizontalProjects({ projects }: Props) {
         })}
       </div>
 
-      <div className="container-x mt-10">
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <div className="mt-6 md:mt-10">
+        <div className="no-scrollbar flex items-center gap-x-5 overflow-x-auto px-[var(--gutter)] md:flex-wrap md:justify-center md:px-0">
           <button
             type="button"
             onClick={() => applyFilter(ALL)}
-            className={clsx("mono-label transition-opacity", filter === ALL ? "opacity-100" : "opacity-50 hover:opacity-80")}
+            className={clsx(
+              "mono-label inline-flex min-h-11 shrink-0 items-center px-1 transition-opacity active:opacity-60",
+              filter === ALL ? "opacity-100" : "opacity-50 hover:opacity-80",
+            )}
           >
             {ALL}
           </button>
@@ -229,7 +252,7 @@ export function HorizontalProjects({ projects }: Props) {
               type="button"
               onClick={() => applyFilter(tag)}
               className={clsx(
-                "mono-label transition-opacity",
+                "mono-label inline-flex min-h-11 shrink-0 items-center px-1 transition-opacity active:opacity-60",
                 filter === tag ? "opacity-100" : "opacity-50 hover:opacity-80",
               )}
             >
@@ -240,7 +263,7 @@ export function HorizontalProjects({ projects }: Props) {
         </div>
 
         {/* Полоса прокрутки ленты — тонкая линия под фильтрами. */}
-        <div className="mx-auto mt-6 h-px w-full max-w-md bg-current opacity-20">
+        <div className="mx-auto mt-5 mb-10 h-px w-[60%] max-w-md bg-current opacity-20 md:mb-0">
           <div
             className="h-px bg-current opacity-100 transition-[width] duration-200"
             style={{ width: `${Math.max(progress * 100, 8)}%` }}

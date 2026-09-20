@@ -82,7 +82,7 @@ export function Header() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Закрыть меню" : "Открыть меню"}
-          className="mono-label relative z-10 md:hidden"
+          className="mono-label relative z-10 -mr-2 inline-flex min-h-11 items-center px-2 transition-opacity active:opacity-60 md:hidden"
         >
           {open ? "Закрыть" : "Меню"}
         </button>
@@ -106,7 +106,7 @@ export function Header() {
             href={item.href}
             onClick={() => setOpen(false)}
             className={clsx(
-              "display-caps text-[length:clamp(2rem,10vw,3rem)] transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)]",
+              "display-caps inline-flex min-h-12 items-center text-[length:clamp(2rem,10vw,3rem)] transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] active:opacity-60",
               open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
             )}
             style={{ transitionDelay: open ? `${120 + index * 70}ms` : "0ms" }}
@@ -120,7 +120,7 @@ export function Header() {
           href={`mailto:${site.email}`}
           onClick={() => setOpen(false)}
           className={clsx(
-            "mono-label link-mask mt-6 transition-opacity duration-700",
+            "mono-label link-mask tap-target mt-6 transition-opacity duration-700",
             open ? "opacity-70" : "opacity-0",
           )}
           style={{ transitionDelay: open ? "400ms" : "0ms" }}

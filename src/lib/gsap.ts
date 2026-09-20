@@ -1,12 +1,6 @@
 "use client";
 
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// Регистрация идемпотентна — GSAP сам игнорирует повторные вызовы.
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 /** Кривые и длительности продублированы из globals.css (--ease-*, --dur-*). */
 export const EASE = {
@@ -20,4 +14,4 @@ export const DUR = {
   slow: 1.1,
 } as const;
 
-export { gsap, ScrollTrigger };
+export { gsap };
