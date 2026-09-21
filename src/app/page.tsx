@@ -15,7 +15,7 @@ export default function HomePage() {
       size="hero"
       label={`${site.tagline} · ${site.city}`}
       caps="Noreliq"
-      note="цифровые продукты и сервисы с ИИ"
+      note="сайты, сервисы и AI-инструменты"
       lead={site.intro}
       cta={{ href: "/projects", label: "Смотреть работы" }}
     />

@@ -13,8 +13,8 @@ export default function AboutPage() {
   return (
     <Poster
       label="01 / О нас"
-      caps="Небольшая студия"
-      note="с длинными отношениями"
+      caps="Студия для сайтов"
+      note="AI-контента и автоматизации"
       lead={about.lead}
       cta={{ href: "/contacts", label: "Обсудить проект" }}
     />
