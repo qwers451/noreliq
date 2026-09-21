@@ -14,8 +14,12 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <section className="flex h-[100svh] flex-col pt-[var(--header-h)]">
+      {/* Заголовок первого уровня, а не абзац: это единственный заголовок
+          раздела, и без него у страницы не было структуры для скринридеров
+          и поисковиков. Вид задаёт .mono-label — базовые стили h1 он
+          перекрывает, потому что слой components идёт после base. */}
       <div className="container-x pt-6 text-center">
-        <Reveal as="p" className="mono-label opacity-60" immediate>
+        <Reveal as="h1" className="mono-label opacity-60" immediate>
           03 / Проекты · {projects.length}
         </Reveal>
       </div>

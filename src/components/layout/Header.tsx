@@ -42,7 +42,9 @@ export function Header() {
       <div className="container-x pointer-events-auto flex h-[var(--header-h)] items-center justify-between">
         <TransitionLink
           href={homeHref}
-          className="block"
+          // Отрицательный отступ слева: зона нажатия дорастает до 44 px,
+          // но знак визуально остаётся на прежнем месте у края.
+          className="-ml-2 flex min-h-11 min-w-11 items-center px-2"
           aria-label={`${site.name} — на главную`}
           onClick={() => setOpen(false)}
         >

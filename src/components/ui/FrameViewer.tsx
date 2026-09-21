@@ -66,6 +66,12 @@ export function FrameViewer({ frames, start, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label={frames[active]?.alt}
+      // Закрытие по клику мимо кадра висит на всём слое, а не на слайде:
+      // слайд не покрывает полосу сверху и зону под кнопками, и клик по
+      // тёмному фону там просто ничего не делал. Перетаскивание ленты не
+      // закрывает: useCarousel гасит клик после жеста ещё на фазе
+      // перехвата, до того как событие дойдёт сюда.
+      onClick={onClose}
       className="fixed inset-0 z-[120] flex flex-col bg-bg/[0.97] pb-4 pt-14 backdrop-blur-md"
     >
       <div
@@ -75,11 +81,7 @@ export function FrameViewer({ frames, start, onClose }: Props) {
         data-lenis-prevent
       >
         {frames.map((frame) => (
-          <div
-            key={frame.src}
-            onClick={onClose}
-            className="relative h-full w-screen shrink-0"
-          >
+          <div key={frame.src} className="relative h-full w-screen shrink-0">
             {/* fill, а не w-auto: при наличии srcset браузер делит
                 собственный размер картинки на плотность выбранного
                 кандидата, и раскладка начинает зависеть от того, какой
@@ -101,7 +103,11 @@ export function FrameViewer({ frames, start, onClose }: Props) {
         ))}
       </div>
 
-      <div className="mt-3 flex shrink-0 items-center justify-center gap-8">
+      {/* Стрелки и счётчик не должны закрывать просмотр. */}
+      <div
+        onClick={(event) => event.stopPropagation()}
+        className="mt-3 flex shrink-0 items-center justify-center gap-8"
+      >
         <button
           type="button"
           onClick={() => step(-1)}
