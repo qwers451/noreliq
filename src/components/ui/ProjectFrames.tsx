@@ -11,6 +11,18 @@ export type { Frame };
 type Props = { frames: Frame[] };
 
 /**
+ * Ширина кадра задана как min(ширина экрана, высота × пропорция), а в
+ * атрибуте sizes можно указать только одну длину на условие. Поэтому
+ * выбираем ту часть, которая на этом экране реально меньше: иначе браузер
+ * тянет вариант вдвое крупнее нужного.
+ */
+const frameSizes = (ratio: number) =>
+  [
+    `(max-width: 768px) ${ratio < 0.68 ? `${Math.round(56 * ratio)}vh` : "82vw"}`,
+    ratio < 1.65 ? `${Math.round(60 * ratio)}vh` : "62vw",
+  ].join(", ");
+
+/**
  * Кадры проекта листаются строго по одному: свайпом, перетаскиванием,
  * колесом и стрелками. Первый кадр стоит по центру сразу при открытии
  * страницы — за центрирование отвечает useCarousel.
@@ -47,14 +59,12 @@ export function ProjectFrames({ frames }: Props) {
               onClick={() => setZoom(index)}
               className="relative block aspect-[var(--ratio)] w-full cursor-zoom-in"
               aria-label={`Открыть кадр: ${frame.alt}`}
-              tabIndex={index === active ? 0 : -1}
             >
               <Image
                 src={frame.src}
                 alt={frame.alt}
                 fill
-                sizes="(max-width: 768px) 82vw, 62vw"
-                quality={92}
+                sizes={frameSizes(frame.width / frame.height)}
                 draggable={false}
                 className="object-contain"
               />

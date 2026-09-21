@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-import { gsap } from "@/lib/gsap";
 import {
   DESKTOP_QUERY,
   useCoarsePointer,
@@ -15,6 +14,10 @@ const INTERACTIVE = 'a, button, [role="button"], [data-cursor]';
 /**
  * Кастомный курсор с состояниями default / link / drag.
  * Не монтируется на тач-устройствах и при prefers-reduced-motion.
+ *
+ * Позицию ведёт кадровый цикл, а масштаб и цвет — CSS-переходы по
+ * data-state. Разнесено намеренно: сдвиг пишется в отдельное свойство
+ * translate, поэтому переход у scale не дерётся с ним за transform.
  */
 export function Cursor() {
   const dotRef = useRef<HTMLDivElement>(null);
@@ -36,39 +39,53 @@ export function Cursor() {
 
     document.documentElement.classList.add("has-custom-cursor");
 
-    const dotX = gsap.quickTo(dot, "x", { duration: 0.12, ease: "power3.out" });
-    const dotY = gsap.quickTo(dot, "y", { duration: 0.12, ease: "power3.out" });
-    const ringX = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3.out" });
-    const ringY = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3.out" });
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let dotX = targetX;
+    let dotY = targetY;
+    let ringX = targetX;
+    let ringY = targetY;
+    let frame = 0;
+    let last = 0;
 
-    const onMove = (event: PointerEvent) => {
-      dotX(event.clientX);
-      dotY(event.clientY);
-      ringX(event.clientX);
-      ringY(event.clientY);
-      gsap.to([dot, ring], { autoAlpha: 1, duration: 0.2, overwrite: "auto" });
+    /** Доля пути за кадр при 60 Гц, пересчитанная под фактический кадр. */
+    const damp = (base: number, dt: number) => 1 - Math.pow(1 - base, dt / 16.67);
+
+    const tick = (now: number) => {
+      const dt = Math.min(now - last, 64);
+      last = now;
+
+      dotX += (targetX - dotX) * damp(0.45, dt);
+      dotY += (targetY - dotY) * damp(0.45, dt);
+      ringX += (targetX - ringX) * damp(0.16, dt);
+      ringY += (targetY - ringY) * damp(0.16, dt);
+
+      dot.style.translate = `${dotX}px ${dotY}px`;
+      ring.style.translate = `${ringX}px ${ringY}px`;
+      frame = requestAnimationFrame(tick);
     };
 
-    const setState = (state: string) => {
-      const isLink = state === "link";
-      const isDrag = state === "drag";
-      gsap.to(ring, {
-        scale: isDrag ? 2.4 : isLink ? 1.8 : 1,
-        borderColor: isLink || isDrag ? "var(--color-accent-ink)" : "var(--color-fg)",
-        duration: 0.3,
-        ease: "power3.out",
-      });
-      gsap.to(dot, { scale: isLink ? 0 : 1, duration: 0.3, ease: "power3.out" });
-      ring.dataset.state = state;
+    const onMove = (event: PointerEvent) => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      dot.dataset.visible = "true";
+      ring.dataset.visible = "true";
+      if (!frame) {
+        last = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
     };
 
     const onOver = (event: PointerEvent) => {
       const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(INTERACTIVE);
-      setState(target ? target.dataset.cursor || "link" : "default");
+      const state = target ? target.dataset.cursor || "link" : "default";
+      ring.dataset.state = state;
+      dot.dataset.state = state;
     };
 
     const onLeaveWindow = () => {
-      gsap.to([dot, ring], { autoAlpha: 0, duration: 0.2 });
+      dot.dataset.visible = "false";
+      ring.dataset.visible = "false";
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
@@ -76,6 +93,7 @@ export function Cursor() {
     document.addEventListener("pointerleave", onLeaveWindow);
 
     return () => {
+      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerover", onOver);
       document.removeEventListener("pointerleave", onLeaveWindow);
@@ -89,9 +107,18 @@ export function Cursor() {
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[95]">
       <div
         ref={ringRef}
-        className="invisible fixed -left-5 -top-5 h-10 w-10 rounded-full border border-fg"
+        data-part="ring"
+        data-state="default"
+        data-visible="false"
+        className="cursor-part fixed -left-5 -top-5 h-10 w-10 rounded-full border border-fg"
       />
-      <div ref={dotRef} className="invisible fixed -left-1 -top-1 h-2 w-2 rounded-full bg-fg" />
+      <div
+        ref={dotRef}
+        data-part="dot"
+        data-state="default"
+        data-visible="false"
+        className="cursor-part fixed -left-1 -top-1 h-2 w-2 rounded-full bg-fg"
+      />
     </div>
   );
 }

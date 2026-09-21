@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 
-import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
 let lenisInstance: Lenis | null = null;
@@ -22,7 +21,7 @@ export function scrollToTop(immediate = true) {
 }
 
 /**
- * Плавный скролл через Lenis, синхронизированный с тикером GSAP.
+ * Плавный скролл через Lenis на собственном кадровом цикле.
  * При prefers-reduced-motion не инициализируется вовсе — остаётся нативный скролл.
  */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
@@ -39,13 +38,13 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     });
     lenisInstance = lenis;
 
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+    let frame = requestAnimationFrame(function raf(time) {
+      lenis.raf(time);
+      frame = requestAnimationFrame(raf);
+    });
 
     return () => {
-      gsap.ticker.remove(raf);
-      gsap.ticker.lagSmoothing(500, 33);
+      cancelAnimationFrame(frame);
       lenis.destroy();
       lenisInstance = null;
     };

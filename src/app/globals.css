@@ -221,6 +221,35 @@
     transform-origin: left;
   }
 
+  /* Курсор: положение ведёт скрипт через свойство translate, а масштаб,
+     цвет и проявление — переходы здесь. Разные свойства, поэтому они
+     не перебивают друг друга. */
+  .cursor-part {
+    opacity: 0;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      scale 0.3s var(--ease-out-expo),
+      border-color 0.3s var(--ease-out-expo);
+  }
+  .cursor-part[data-visible="true"] {
+    opacity: 1;
+  }
+  .cursor-part[data-state="link"],
+  .cursor-part[data-state="drag"] {
+    border-color: var(--color-accent-ink);
+  }
+  /* Кольцо подрастает над ссылкой и сильнее — над лентой, которую можно
+     тянуть; точка внутри него на ссылке убирается. */
+  .cursor-part[data-part="ring"][data-state="link"] {
+    scale: 1.8;
+  }
+  .cursor-part[data-part="ring"][data-state="drag"] {
+    scale: 2.4;
+  }
+  .cursor-part[data-part="dot"][data-state="link"] {
+    scale: 0;
+  }
+
   /* Зона нажатия под палец у мелких подписей-ссылок. */
   .tap-target {
     display: inline-flex;
@@ -237,8 +266,11 @@
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: auto;
-    /* Горизонталь ведём сами, вертикаль и пинч оставляем системе. */
-    touch-action: pan-x pinch-zoom;
+    /* manipulation = pan-x + pan-y + pinch-zoom. Направление жеста выбирает
+       браузер: вбок листается лента, вверх-вниз прокручивается страница.
+       С прежним pan-x вертикальный свайп, начатый на карточке, не делал
+       вообще ничего — страница из-под ленты не прокручивалась. */
+    touch-action: manipulation;
     overscroll-behavior-inline: contain;
     cursor: grab;
     scrollbar-width: none;

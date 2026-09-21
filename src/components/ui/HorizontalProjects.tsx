@@ -32,7 +32,7 @@ export function HorizontalProjects({ projects }: Props) {
   // страница проектов не прокручивается вертикально, и над подписями
   // или фильтрами колесо иначе не делало бы ничего.
   const surfaceRef = useRef<HTMLDivElement>(null);
-  const { trackRef, progressRef, active, goTo } = useCarousel({
+  const { trackRef, progressRef, goTo } = useCarousel({
     count: visible.length,
     mode: "free",
     wheelSurface: surfaceRef,
@@ -62,11 +62,10 @@ export function HorizontalProjects({ projects }: Props) {
         className="carousel-track items-start gap-8 pb-2 md:gap-12"
       >
         {visible.map((project, index) => (
-          <article
-            key={project.slug}
-            data-active={index === active}
-            className="group w-[74vw] shrink-0 md:w-[24vw]"
-          >
+          // data-active проставляет useCarousel напрямую в DOM, а оформление
+          // висит на CSS-селекторе: так смена центральной карточки не гоняет
+          // React по списку картинок посреди прокрутки.
+          <article key={project.slug} className="group w-[74vw] shrink-0 md:w-[24vw]">
             <TransitionLink href={`/projects/${project.slug}`} className="block">
               {/* Активная карточка чуть крупнее — так лента получает
                   фокус внимания, как в референсе. */}
@@ -76,13 +75,9 @@ export function HorizontalProjects({ projects }: Props) {
                   alt={`Обложка проекта ${project.title}`}
                   fill
                   sizes="(max-width: 768px) 74vw, 24vw"
-                  quality={92}
                   priority={index < 2}
                   draggable={false}
-                  className={clsx(
-                    "object-cover transition-[transform,opacity] duration-700 ease-[var(--ease-out-expo)]",
-                    index === active ? "scale-[1.04] opacity-100" : "scale-100 opacity-65",
-                  )}
+                  className="scale-100 object-cover opacity-65 transition-[transform,opacity] duration-700 ease-[var(--ease-out-expo)] group-data-[active=true]:scale-[1.04] group-data-[active=true]:opacity-100"
                 />
               </div>
 
@@ -97,15 +92,7 @@ export function HorizontalProjects({ projects }: Props) {
 
               {/* Описание показывается только у центральной карточки.
                   Высота зарезервирована — иначе лента прыгает при смене. */}
-              <div
-                className={clsx(
-                  "mt-4 h-24 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] md:mt-5 md:h-36",
-                  index === active
-                    ? "translate-y-0 opacity-100 delay-100"
-                    : "translate-y-2 opacity-0 delay-0",
-                )}
-                aria-hidden={index !== active}
-              >
+              <div className="mt-4 h-24 translate-y-2 opacity-0 transition-[opacity,transform] duration-700 ease-[var(--ease-out-expo)] group-data-[active=true]:translate-y-0 group-data-[active=true]:opacity-100 group-data-[active=true]:delay-100 md:mt-5 md:h-36">
                 <p className="line-clamp-2 max-w-[34ch] leading-relaxed md:line-clamp-4">
                   {project.summary}
                 </p>

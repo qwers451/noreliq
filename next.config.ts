@@ -12,17 +12,15 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
   images: {
-    // Next отдаёт только те значения quality, которые перечислены здесь;
-    // всё остальное молча падает до 75. Для снимков интерфейса нужен запас.
-    qualities: [75, 90, 92],
-    // Плейсхолдеры лежат локально в SVG. Внешние источники не используются.
-    dangerouslyAllowSVG: true,
-    contentDispositionType: "attachment",
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // На Pages нет сервера оптимизации картинок. Свой загрузчик вместо
-    // unoptimized: он ещё и подставляет basePath, чего next/image
-    // с unoptimized не делает — иначе картинки отдавали бы 404.
-    ...(isPages ? { loader: "custom" as const, loaderFile: "./image-loader.ts" } : {}),
+    // Свой загрузчик вместо оптимизатора — и в разработке тоже. На статике
+    // оптимизатора нет вовсе, так что иначе локально видишь одну картинку,
+    // а на сайте другую. Варианты нарезаны заранее скриптом.
+    loader: "custom",
+    loaderFile: "./image-loader.ts",
+    // Ровно те ширины, которые нарезает scripts/responsive-images.mjs:
+    // srcset тогда состоит только из реально существующих файлов.
+    deviceSizes: [480, 960, 1440, 2000],
+    imageSizes: [],
   },
   ...(isPages
     ? {

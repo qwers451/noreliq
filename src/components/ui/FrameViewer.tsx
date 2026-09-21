@@ -16,6 +16,17 @@ type Props = {
 };
 
 /**
+ * Свободная высота под кадр во весь экран — примерно 80vh: остальное
+ * занимают отступ сверху, стрелки и подпись. Ширина кадра упирается либо
+ * в неё, либо в ширину экрана — что меньше, то и указываем в sizes.
+ */
+const viewerSizes = (ratio: number) =>
+  [
+    `(max-width: 768px) ${ratio < 0.58 ? `${Math.round(80 * ratio)}vh` : "100vw"}`,
+    ratio < 2 ? `${Math.round(80 * ratio)}vh` : "100vw",
+  ].join(", ");
+
+/**
  * Просмотр кадра во весь экран. Кадры листаются свайпом, стрелками и
  * клавишами — на телефоне без свайпа просмотр ощущался сломанным.
  *
@@ -67,20 +78,24 @@ export function FrameViewer({ frames, start, onClose }: Props) {
           <div
             key={frame.src}
             onClick={onClose}
-            className="flex h-full w-screen shrink-0 items-center justify-center"
+            className="relative h-full w-screen shrink-0"
           >
+            {/* fill, а не w-auto: при наличии srcset браузер делит
+                собственный размер картинки на плотность выбранного
+                кандидата, и раскладка начинает зависеть от того, какой
+                файл он подтянул — кадр во весь экран выходил втрое
+                мельче, чем нужно. Здесь размер задаёт контейнер. */}
             <Image
               src={frame.src}
               alt={frame.alt}
-              width={frame.width}
-              height={frame.height}
-              quality={95}
-              sizes="92vw"
+              fill
+              sizes={viewerSizes(frame.width / frame.height)}
               draggable={false}
-              // Пинч-зум оставляем системе: это единственный способ
-              // рассмотреть детали на телефоне.
-              style={{ touchAction: "pinch-zoom" }}
-              className="max-h-full w-auto max-w-full object-contain"
+              // Разрешения touch-action пересекаются по цепочке предков:
+              // с одним лишь pinch-zoom свайп, начатый на самой картинке,
+              // не листал кадры — во весь экран работали только кнопки.
+              style={{ touchAction: "manipulation" }}
+              className="object-contain"
             />
           </div>
         ))}

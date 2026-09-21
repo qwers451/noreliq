@@ -12,7 +12,6 @@ import {
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
-import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { scrollToTop } from "@/components/motion/SmoothScroll";
 import { fieldForPath, fields } from "@/content/themes";
@@ -38,6 +37,9 @@ export function useTransitionRouter() {
  * экран и остаётся так навсегда: `router.push` на тот же маршрут не меняет
  * pathname, и «открывающий» эффект просто не запускается.
  */
+/** Кривая совпадает с --ease-in-out-quart из globals.css. */
+const EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
+
 const normalizePath = (path: string) =>
   path.length > 1 ? path.replace(/\/+$/, "") : path;
 
@@ -61,29 +63,43 @@ export function PageTransition({ children }: { children: ReactNode }) {
 
     document.documentElement.classList.add("is-loading");
 
-    const counter = { value: 0 };
-    const tl = gsap.timeline({
-      onComplete: () => {
-        document.documentElement.classList.remove("is-loading");
-      },
-    });
+    let frame = 0;
+    let fade: Animation | undefined;
+    const started = performance.now();
 
-    tl.to(counter, {
-      value: 100,
-      duration: 0.45,
-      ease: "power2.inOut",
-      onUpdate: () => setProgress(Math.round(counter.value)),
-    })
-      .to(counterRef.current, { autoAlpha: 0, duration: 0.2 }, ">-0.1")
-      .to(preloader, {
-        autoAlpha: 0,
-        duration: 0.45,
-        ease: "power2.inOut",
-      })
-      .set(preloader, { display: "none" });
+    const count = (now: number) => {
+      const passed = Math.min((now - started) / 450, 1);
+      // Та же кривая, что была у счётчика: разгон и мягкая остановка.
+      const eased = passed < 0.5 ? 2 * passed * passed : 1 - 2 * (1 - passed) ** 2;
+      setProgress(Math.round(eased * 100));
+
+      if (passed < 1) {
+        frame = requestAnimationFrame(count);
+        return;
+      }
+      frame = 0;
+
+      counterRef.current?.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: 200,
+        fill: "forwards",
+      });
+      fade = preloader.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: 450,
+        delay: 150,
+        easing: EASE,
+        fill: "forwards",
+      });
+      fade.onfinish = () => {
+        preloader.style.display = "none";
+        document.documentElement.classList.remove("is-loading");
+      };
+    };
+
+    frame = requestAnimationFrame(count);
 
     return () => {
-      tl.kill();
+      if (frame) cancelAnimationFrame(frame);
+      fade?.cancel();
       document.documentElement.classList.remove("is-loading");
     };
   }, [reduced]);
@@ -98,17 +114,19 @@ export function PageTransition({ children }: { children: ReactNode }) {
     const curtain = curtainRef.current;
     if (reduced !== false || !curtain || !coveredRef.current) return;
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        coveredRef.current = false;
-        gsap.set(curtain, { visibility: "hidden", pointerEvents: "none" });
-      },
+    const open = curtain.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 700,
+      easing: EASE,
+      fill: "forwards",
     });
-
-    tl.to(curtain, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" });
+    open.onfinish = () => {
+      coveredRef.current = false;
+      curtain.style.visibility = "hidden";
+      curtain.style.pointerEvents = "none";
+    };
 
     return () => {
-      tl.kill();
+      open.cancel();
     };
   }, [pathname, reduced]);
 
@@ -128,17 +146,16 @@ export function PageTransition({ children }: { children: ReactNode }) {
       // цветового поля, без резких панелей.
       const next = fields[fieldForPath(href)];
       coveredRef.current = true;
-      gsap.set(curtain, { backgroundColor: next.bg, pointerEvents: "auto" });
-      gsap.fromTo(
-        curtain,
-        { autoAlpha: 0 },
-        {
-          autoAlpha: 1,
-          duration: 0.55,
-          ease: "power2.inOut",
-          onComplete: () => router.push(href),
-        },
-      );
+      curtain.style.backgroundColor = next.bg;
+      curtain.style.pointerEvents = "auto";
+      curtain.style.visibility = "visible";
+
+      const cover = curtain.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 550,
+        easing: EASE,
+        fill: "forwards",
+      });
+      cover.onfinish = () => router.push(href);
     },
     [pathname, reduced, router],
   );

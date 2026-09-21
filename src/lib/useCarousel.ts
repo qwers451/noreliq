@@ -28,17 +28,16 @@ const clamp = (value: number, min: number, max: number) =>
  * Горизонтальная лента на нативной прокрутке.
  *
  * Правило, ради которого хук существует: позицию ленты меняет ровно один
- * механизм. Раньше над одним контейнером одновременно работали CSS
- * scroll-snap, собственный rAF-лерп, перетаскивание мышью и инерция тача —
- * они писали scrollLeft наперегонки, отсюда рывки и «резина». Поэтому:
+ * механизм. CSS scroll-snap не используется совсем — доворот делаем сами,
+ * иначе браузер ведёт вторую анимацию поверх нашей. Тач не перехватывается:
+ * родную инерцию системы скриптом не повторить.
  *
- * - CSS scroll-snap не используется совсем, доворот делаем сами;
- * - сглаживание считается от времени кадра, а не от числа кадров, иначе
- *   на 120 Гц лента летит вдвое быстрее, а при просадках идёт ступенями;
- * - тач не перехватывается вовсе: родную инерцию системы скриптом не
- *   повторить, а попытки это сделать и давали лаги на телефоне;
- * - во время прокрутки React не перерисовывается — активный индекс
- *   пишется в состояние только когда он реально сменился.
+ * Движение — твин с явной длительностью, а не затухание «к цели». Причина
+ * физическая: scrollLeft у браузера целочисленный, и всё, что движется
+ * медленнее пикселя за кадр, рисуется рывками по 1 px. У экспоненциального
+ * затухания хвост бесконечный, и последние полсекунды любого жеста как раз
+ * попадали в эту зону — отсюда оставалась дёрганость. Твин же держит
+ * скорость выше пикселя за кадр почти до самого конца.
  */
 export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -59,10 +58,19 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
 
     /** Позиции scrollLeft, при которых i-й элемент стоит по центру. */
     let offsets: number[] = [];
-    let target = track.scrollLeft;
+    /** Геометрия трека. Кэш: читать её в каждом кадре — значит заставлять
+        браузер пересчитывать раскладку сразу после записи scrollLeft. */
+    let limit = 0;
+    let view = 0;
+
+    let position = track.scrollLeft;
+    let target = position;
+    /* Текущий твин: откуда, куда, когда начался и сколько длится. */
+    let from = position;
+    let startedAt = 0;
+    let duration = 0;
     let current = -1;
     let frame = 0;
-    let last = 0;
     let settleTimer = 0;
     let flagStart = true;
     let flagEnd = false;
@@ -71,9 +79,12 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
     let startX = 0;
     let startLeft = 0;
     let lastWheel = 0;
+    /** Позиция, с которой началась текущая серия событий колеса. */
+    let burstFrom = 0;
+    /** Сырой накопитель колеса внутри серии: по нему выбираем карточку. */
+    let raw = 0;
 
     const items = () => [...track.children] as HTMLElement[];
-    const maxScroll = () => Math.max(track.scrollWidth - track.clientWidth, 0);
 
     /* --- замеры ------------------------------------------------------- */
 
@@ -98,12 +109,14 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       // недостижимой. С отступами первый элемент стоит по центру ровно
       // при scrollLeft = 0, а последний долистывается целиком.
       const edge = gutter();
-      const view = track.clientWidth;
+      view = track.clientWidth;
       const first = cards[0].getBoundingClientRect().width;
       const lastCard = cards[cards.length - 1].getBoundingClientRect().width;
 
       track.style.paddingInlineStart = `${Math.max(edge, (view - first) / 2)}px`;
       track.style.paddingInlineEnd = `${Math.max(edge, (view - lastCard) / 2)}px`;
+
+      limit = Math.max(track.scrollWidth - view, 0);
 
       // Смещения храним без зажима по длине прокрутки: зажатые значения
       // у краёв схлопываются в одно число, и тогда и доворот, и счётчик
@@ -111,21 +124,26 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       const trackLeft = track.getBoundingClientRect().left;
       offsets = cards.map((card) => {
         const box = card.getBoundingClientRect();
-        const centre = box.left - trackLeft + track.scrollLeft + box.width / 2;
-        return centre - track.clientWidth / 2;
+        return box.left - trackLeft + track.scrollLeft + box.width / 2 - view / 2;
       });
 
-      if (!frame) target = track.scrollLeft;
+      if (!frame) sync();
       update();
+    };
+
+    /** Подхватить фактическую позицию: после инерции пальца или жеста. */
+    const sync = () => {
+      position = track.scrollLeft;
+      target = position;
     };
 
     /* --- состояние ---------------------------------------------------- */
 
-    const nearest = (position: number) => {
+    const nearest = (at: number) => {
       let best = 0;
       let bestDistance = Infinity;
       offsets.forEach((offset, index) => {
-        const distance = Math.abs(offset - position);
+        const distance = Math.abs(offset - at);
         if (distance < bestDistance) {
           bestDistance = distance;
           best = index;
@@ -134,64 +152,90 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       return best;
     };
 
+    const snapped = (at: number) => clamp(offsets[nearest(at)] ?? 0, 0, limit);
+
+    /** Только арифметика по кэшу: ни одного чтения раскладки за кадр. */
     const update = () => {
-      const limit = maxScroll();
-      const position = track.scrollLeft;
+      const at = position;
 
       const progress = progressRef.current;
       if (progress) {
-        progress.style.setProperty("--progress", String(limit > 0 ? position / limit : 1));
+        progress.style.setProperty("--progress", String(limit > 0 ? at / limit : 1));
       }
 
       // Состояние пишем только при смене: иначе на каждом кадре инерции
       // перерисовывалась бы вся лента с картинками.
-      const start_ = position <= 1;
-      const end_ = position >= limit - 1;
-      if (start_ !== flagStart) {
-        flagStart = start_;
-        setAtStart(start_);
+      const isStart = at <= 1;
+      const isEnd = at >= limit - 1;
+      if (isStart !== flagStart) {
+        flagStart = isStart;
+        setAtStart(isStart);
       }
-      if (end_ !== flagEnd) {
-        flagEnd = end_;
-        setAtEnd(end_);
+      if (isEnd !== flagEnd) {
+        flagEnd = isEnd;
+        setAtEnd(isEnd);
       }
 
-      const next = nearest(position);
-      if (next !== current) {
-        current = next;
-        setActive(next);
-      }
+      const next = nearest(at);
+      if (next === current) return;
+
+      // Активный элемент помечаем атрибутом, а не пересборкой списка в
+      // React: оформление висит на CSS-селекторе, и смена активной карточки
+      // стоит двух записей в DOM вместо перерисовки всех картинок.
+      const cards = items();
+      cards[current]?.setAttribute("data-active", "false");
+      cards[next]?.setAttribute("data-active", "true");
+      current = next;
+      setActive(next);
     };
 
     /* --- движение ----------------------------------------------------- */
 
-    const tick = (now: number) => {
-      const dt = Math.min(now - last, 64);
-      last = now;
+    /* Показатель 2.4 — компромисс: мягкое торможение, но без длинного
+       хвоста, где шаг меньше пикселя и движение видно рывками. */
+    const ease = (x: number) => 1 - Math.pow(1 - x, 2.4);
 
-      const delta = target - track.scrollLeft;
-      if (Math.abs(delta) < 1) {
-        track.scrollLeft = target;
+    const tick = (now: number) => {
+      // Прогресс обязательно зажимаем снизу: метка времени у rAF — это
+      // начало кадра, а обработчик события, запустивший твин, выполняется
+      // уже внутри этого кадра и ставит startedAt позже. Без зажима первый
+      // кадр получал отрицательный прогресс, и лента отыгрывала назад —
+      // ровно тот рывок на каждом щелчке колеса.
+      const progressed = duration > 0 ? clamp((now - startedAt) / duration, 0, 1) : 1;
+      position = from + (target - from) * ease(progressed);
+
+      if (progressed >= 1) {
+        position = target;
         frame = 0;
+      } else {
+        frame = requestAnimationFrame(tick);
+      }
+
+      track.scrollLeft = Math.round(position);
+      update();
+    };
+
+    /** Поставить цель и доехать до неё. */
+    const moveTo = (to: number) => {
+      target = clamp(to, 0, limit);
+
+      if (reduced !== false || Math.abs(target - position) < 0.5) {
+        position = target;
+        track.scrollLeft = Math.round(position);
         update();
+        if (frame) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+        }
         return;
       }
 
-      // Сглаживание от времени, а не от кадра: одинаковая скорость
-      // на 60 и 120 Гц и никаких ступеней при просадках.
-      const eased = delta * (1 - Math.pow(0.0015, dt / 1000));
-      // Браузер округляет scrollLeft до целых пикселей: шаг меньше
-      // половины пикселя просто теряется, и лента замирает, не доехав
-      // до цели. Поэтому у шага есть минимум.
-      track.scrollLeft += Math.abs(eased) < 0.6 ? Math.sign(delta) * 0.6 : eased;
-      update();
-      frame = requestAnimationFrame(tick);
-    };
-
-    const start = () => {
-      if (frame) return;
-      last = performance.now();
-      frame = requestAnimationFrame(tick);
+      // Твин всегда стартует от текущей позиции, поэтому его можно
+      // перезапускать хоть каждым событием колеса — разрыва не будет.
+      from = position;
+      startedAt = performance.now();
+      duration = clamp(Math.abs(target - from) * 1.5, 240, 620);
+      if (!frame) frame = requestAnimationFrame(tick);
     };
 
     const go = (index: number) => {
@@ -199,47 +243,33 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       // измениться (например, когда у страницы появляется вертикальная
       // полоса прокрутки), и кэш смещений уезжает на полполосы.
       measure();
-      const next = clamp(index, 0, offsets.length - 1);
-      target = clamp(offsets[next] ?? 0, 0, maxScroll());
-
-      if (reduced !== false) {
-        track.scrollLeft = target;
-        update();
-        return;
-      }
-      start();
+      moveTo(offsets[clamp(index, 0, offsets.length - 1)] ?? 0);
     };
 
     const step = (dir: number) => go(current + dir);
 
     controls.current = { go, step };
 
-
-    const scheduleSettle = () => {
-      window.clearTimeout(settleTimer);
-      settleTimer = window.setTimeout(() => settle(), 140);
-    };
-
-    /** Доворот к ближайшему элементу после того, как жест закончился. */
+    /**
+     * Доворот после того, как лента остановилась сама. Нужен только для
+     * нативной инерции тача: там позиция не наша, и поймать конец жеста
+     * можно лишь по факту остановки.
+     */
     const settle = () => {
       if (offsets.length === 0) return;
-      // Пока идёт жест или наша собственная анимация — ждём. Иначе доворот
-      // перебивает цель на полпути и лента застревает, дёргаясь у края:
-      // ровно та драка двух механизмов, от которой мы уходим.
       if (dragging || frame) {
         scheduleSettle();
         return;
       }
       measure();
-      const to = clamp(offsets[nearest(track.scrollLeft)], 0, maxScroll());
+      const to = snapped(track.scrollLeft);
       if (Math.abs(to - track.scrollLeft) < 1) return;
-      target = to;
-      if (reduced !== false) {
-        track.scrollLeft = target;
-        update();
-        return;
-      }
-      start();
+      moveTo(to);
+    };
+
+    const scheduleSettle = () => {
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settle, 140);
     };
 
     /* --- ввод --------------------------------------------------------- */
@@ -247,16 +277,13 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
     const onScroll = () => {
       // Прокрутка пальцем или системой: цель догоняет фактическую позицию,
       // иначе после инерции лента прыгнет обратно к старой цели.
-      if (!frame) {
-        target = track.scrollLeft;
-        scheduleSettle();
-      }
+      if (frame) return;
+      sync();
       update();
+      scheduleSettle();
     };
 
     const onWheel = (event: WheelEvent) => {
-      const limit = maxScroll();
-      const position = track.scrollLeft;
       const pass =
         limit <= 0 ||
         // Горизонтальный жест трекпада отдаём браузеру: он делает это лучше.
@@ -282,14 +309,27 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
         return;
       }
 
-      target = clamp(target + event.deltaY, 0, limit);
-      if (reduced !== false) {
-        track.scrollLeft = target;
-        update();
-        return;
+      const now = performance.now();
+      // Новая серия щелчков начинается после паузы: с этой точки считаем,
+      // куда пользователь «повёл» ленту.
+      if (now - lastWheel > 220) {
+        burstFrom = position;
+        raw = position;
       }
-      start();
-      scheduleSettle();
+      lastWheel = now;
+      raw = clamp(raw + event.deltaY, 0, limit);
+
+      // Целью сразу становится центр карточки, а не сырая позиция колеса.
+      // Тогда лента одним непрерывным движением доезжает куда нужно и ей
+      // не приходится потом отыгрывать назад: именно этот откат в конце
+      // жеста и читался как рывок. Доворачиваем только по направлению
+      // жеста — один щелчок всегда переводит на соседнюю карточку, а не
+      // возвращает на исходную.
+      const forward = raw >= burstFrom;
+      let index = nearest(raw);
+      if (forward && offsets[index] <= burstFrom + 1) index += 1;
+      if (!forward && offsets[index] >= burstFrom - 1) index -= 1;
+      moveTo(offsets[clamp(index, 0, offsets.length - 1)] ?? raw);
     };
 
     /* Перетаскивание только мышью. Тач не трогаем: нативная инерция
@@ -314,14 +354,16 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       if (Math.abs(delta) > 6) moved = true;
       if (!moved) return;
       event.preventDefault();
-      track.scrollLeft = clamp(startLeft - delta, 0, maxScroll());
-      target = track.scrollLeft;
+      position = clamp(startLeft - delta, 0, limit);
+      target = position;
+      track.scrollLeft = Math.round(position);
+      update();
     };
 
     const onPointerUp = () => {
       if (!dragging) return;
       dragging = false;
-      settle();
+      if (moved) moveTo(snapped(position));
       // Клик приходит сразу после отпускания и должен узнать,
       // что это было перетаскивание.
       if (moved) window.setTimeout(() => (moved = false), 0);

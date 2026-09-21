@@ -3,7 +3,6 @@
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 import clsx from "clsx";
 
-import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
 type RevealProps = {
@@ -21,7 +20,16 @@ type RevealProps = {
   immediate?: boolean;
 };
 
-/** Единственный примитив появления: мягкий сдвиг вверх с проявлением. */
+/** Кривая совпадает с --ease-out-expo из globals.css. */
+const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+/**
+ * Единственный примитив появления: мягкий сдвиг вверх с проявлением.
+ *
+ * Сделано на Web Animations API. Раньше здесь был GSAP, но во всём проекте
+ * от него оставались ровно такие переходы — 42 КБ в сжатом виде на каждой
+ * странице ради четырёх простых анимаций.
+ */
 export function Reveal({
   children,
   as: Tag = "div",
@@ -42,35 +50,41 @@ export function Reveal({
 
     // Со stagger анимируем прямых потомков, но если их нет (блок с голым
     // текстом) — анимируем сам блок, иначе анимация просто не состоялась бы.
-    const children = Array.from(el.children);
-    const targets = stagger && children.length > 0 ? children : el;
+    const children = [...el.children] as HTMLElement[];
+    const targets = stagger && children.length > 0 ? children : [el];
+
+    let animations: Animation[] = [];
 
     const play = () => {
-      gsap.set(el, { autoAlpha: 1 });
-      gsap.from(targets, {
-        y,
-        autoAlpha: 0,
-        duration: 1.1,
-        ease: "expo.out",
-        delay,
-        stagger,
-      });
+      el.style.opacity = "1";
+      animations = targets.map((target, index) =>
+        target.animate(
+          [
+            { opacity: 0, transform: `translateY(${y}px)` },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          {
+            duration: 1100,
+            delay: (delay + (stagger ?? 0) * index) * 1000,
+            easing: EASE,
+            fill: "both",
+          },
+        ),
+      );
     };
 
     if (immediate) {
-      const ctx = gsap.context(play, el);
-      return () => ctx.revert();
+      play();
+      return () => animations.forEach((animation) => animation.cancel());
     }
 
-    // IntersectionObserver вместо ScrollTrigger: плагин весил 17 КБ в сжатом
-    // виде, а нужен был ровно один сценарий — «показать один раз, когда блок
-    // появился в окне».
-    let ctx: gsap.Context | undefined;
+    // IntersectionObserver вместо скролл-плагинов: нужен ровно один
+    // сценарий — «показать один раз, когда блок появился в окне».
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
         observer.disconnect();
-        ctx = gsap.context(play, el);
+        play();
       },
       { rootMargin: "0px 0px -5% 0px" },
     );
@@ -79,7 +93,7 @@ export function Reveal({
 
     return () => {
       observer.disconnect();
-      ctx?.revert();
+      animations.forEach((animation) => animation.cancel());
     };
   }, [reduced, delay, y, stagger, immediate]);
 
