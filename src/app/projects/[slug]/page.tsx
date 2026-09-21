@@ -81,6 +81,16 @@ export default async function ProjectPage({ params }: PageProps) {
           <span>{project.client}</span>
           <span>{project.year}</span>
           <span>{project.role}</span>
+          {project.url ? (
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="link-mask tap-target"
+            >
+              {new URL(project.url).host} ↗
+            </a>
+          ) : null}
         </Reveal>
 
         <Reveal as="p" className="poster-lead mt-8" immediate delay={0.24}>
