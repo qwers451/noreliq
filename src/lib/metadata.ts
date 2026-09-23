@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 
 import { site } from "@/content/site";
 
+type ShareImage = { url: string; width: number; height: number; type: string; alt: string };
+
 /**
- * Картинка из app/opengraph-image.tsx. Файловая картинка действует только в
- * своём сегменте: страница со своим openGraph без явной ссылки её теряет.
+ * Общая картинка превью из app/og.png/route.tsx. Отдельный маршрут с
+ * расширением, а не opengraph-image: в статическом экспорте тот ложился
+ * файлом без расширения, и хостинг отдавал его без типа image/png.
  */
-const shareImage = {
-  url: "/opengraph-image",
+export const shareImage: ShareImage = {
+  url: "/og.png",
   width: 1200,
   height: 630,
   type: "image/png",
@@ -30,17 +33,20 @@ export function pageMetadata({
   title,
   description,
   path,
+  image = shareImage,
 }: {
   title: string;
   description: string;
   path: string;
+  /** Своя картинка превью — например, обложка кейса. */
+  image?: ShareImage;
 }): Metadata {
   const fullTitle = `${title} — ${site.name}`;
   return {
     title,
     description,
     alternates: { canonical: path },
-    openGraph: { ...openGraphBase, title: fullTitle, description, url: path },
-    twitter: { card: "summary_large_image", title: fullTitle, description, images: [shareImage] },
+    openGraph: { ...openGraphBase, images: [image], title: fullTitle, description, url: path },
+    twitter: { card: "summary_large_image", title: fullTitle, description, images: [image] },
   };
 }

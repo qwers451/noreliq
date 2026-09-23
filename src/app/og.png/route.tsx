@@ -2,18 +2,18 @@ import { ImageResponse } from "next/og";
 
 import { site } from "@/content/site";
 
-// Статический экспорт требует явной пометки для метаданных-маршрутов.
+// Статический экспорт требует явной пометки: маршрут ляжет файлом og.png.
 export const dynamic = "force-static";
 
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-export const alt = `${site.name} — ${site.tagline}`;
+const size = { width: 1200, height: 630 };
 
 /**
- * Общая OG-картинка для всего сайта. Текст латиницей: встроенный в next/og
- * шрифт не содержит кириллицы. Заменить на фирменную обложку при ребрендинге.
+ * Общая OG-картинка для всего сайта. Маршрут, а не opengraph-image.tsx:
+ * тот в экспорте ложился файлом без расширения, и хостинг отдавал его без
+ * типа image/png. Текст латиницей: встроенный в next/og шрифт не содержит
+ * кириллицы. Заменить на фирменную обложку при ребрендинге.
  */
-export default function OpengraphImage() {
+export function GET() {
   return new ImageResponse(
     (
       <div

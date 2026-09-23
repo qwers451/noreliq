@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
   type ReactNode,
 } from "react";
 import Image from "next/image";
@@ -63,64 +62,12 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const reduced = useReducedMotion();
 
   const curtainRef = useRef<HTMLDivElement>(null);
-  const preloaderRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
   const coveredRef = useRef(false);
   /** Анимации шторки: при новом переходе старые гасим, иначе они копятся
       с fill: forwards и перебивают друг друга. */
   const curtainAnims = useRef<Animation[]>([]);
   const pushTimer = useRef(0);
   const previousPath = useRef(pathname);
-  const [progress, setProgress] = useState(0);
-
-  /* Прелоадер первой загрузки. */
-  useEffect(() => {
-    if (reduced !== false) return;
-    const preloader = preloaderRef.current;
-    if (!preloader) return;
-
-    document.documentElement.classList.add("is-loading");
-
-    let frame = 0;
-    let fade: Animation | undefined;
-    const started = performance.now();
-
-    const count = (now: number) => {
-      const passed = Math.min((now - started) / 450, 1);
-      // Та же кривая, что была у счётчика: разгон и мягкая остановка.
-      const eased = passed < 0.5 ? 2 * passed * passed : 1 - 2 * (1 - passed) ** 2;
-      setProgress(Math.round(eased * 100));
-
-      if (passed < 1) {
-        frame = requestAnimationFrame(count);
-        return;
-      }
-      frame = 0;
-
-      counterRef.current?.animate([{ opacity: 1 }, { opacity: 0 }], {
-        duration: 200,
-        fill: "forwards",
-      });
-      fade = preloader.animate([{ opacity: 1 }, { opacity: 0 }], {
-        duration: 450,
-        delay: 150,
-        easing: EASE,
-        fill: "forwards",
-      });
-      fade.onfinish = () => {
-        preloader.style.display = "none";
-        document.documentElement.classList.remove("is-loading");
-      };
-    };
-
-    frame = requestAnimationFrame(count);
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      fade?.cancel();
-      document.documentElement.classList.remove("is-loading");
-    };
-  }, [reduced]);
 
   /* Когда маршрут сменился — плавно уводим заливку. */
   useEffect(() => {
@@ -214,8 +161,10 @@ export function PageTransition({ children }: { children: ReactNode }) {
         className="motion-only invisible pointer-events-none fixed inset-0 z-[90]"
       />
 
+      {/* Прелоадер первой загрузки целиком на CSS: см. [data-preloader]
+          в globals.css. Скрипты ему не нужны — он играет с первой отрисовки. */}
       <div
-        ref={preloaderRef}
+        data-preloader
         aria-hidden="true"
         className="motion-only fixed inset-0 z-[100] flex items-end justify-between bg-fg px-[var(--gutter)] pb-10 text-inverse"
       >
@@ -229,11 +178,9 @@ export function PageTransition({ children }: { children: ReactNode }) {
           className="h-10 w-auto md:h-14"
         />
         <span
-          ref={counterRef}
+          data-preloader-count
           className="font-display text-[length:clamp(2rem,6vw,4rem)] leading-none tabular-nums text-accent"
-        >
-          {progress}
-        </span>
+        />
       </div>
     </TransitionContext.Provider>
   );

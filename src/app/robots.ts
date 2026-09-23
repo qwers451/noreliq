@@ -14,7 +14,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: isDemo
       ? { userAgent: "*", disallow: "/" }
       : { userAgent: "*", allow: "/" },
+    // Директиву Host Яндекс не читает с 2018 года: главное зеркало задаётся
+    // редиректом и в Вебмастере, поэтому здесь её нет.
     sitemap: `${site.url}/sitemap.xml`,
-    host: site.url,
   };
 }

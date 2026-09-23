@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Poster } from "@/components/ui/Poster";
 import { services } from "@/content/services";
 import { pageMetadata } from "@/lib/metadata";
+import { servicesSchema } from "@/lib/schema";
 
 export const metadata: Metadata = pageMetadata({
   title: "Услуги",
@@ -16,6 +18,8 @@ export const metadata: Metadata = pageMetadata({
 export default function ServicesPage() {
   return (
     <>
+      <JsonLd data={servicesSchema(services)} />
+
       <Poster label="02 / Услуги" caps="Что мы умеем" note="форматы работ и цены" />
 
       {/* Список направлений: плотный гротеск в заголовках и цены

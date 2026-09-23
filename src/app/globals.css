@@ -311,6 +311,67 @@
   .motion-ok [data-anim="cover"] {
     visibility: visible;
   }
+
+  /* Появление «сразу» (Reveal immediate) — без JavaScript: стартует с
+     первой отрисовки, а не после загрузки скриптов, и заново играет при
+     переходе, когда блок вставляется в страницу. Кадр задан только «от»:
+     конечная прозрачность берётся из стилей (opacity-60 остаётся 0.6). */
+  .motion-ok [data-anim="intro"] {
+    animation: reveal-in 1.1s var(--ease-out-expo) var(--reveal-delay, 0s) backwards;
+  }
+
+  /* Прелоадер первой загрузки тоже на CSS: счётчик больше не ждёт
+     скриптов и не висит на «0», пока они грузятся. Тайминги прежние:
+     счёт 0,45 с, затем цифра гаснет и заливка уходит. */
+  .motion-ok [data-preloader] {
+    animation: preloader-out 0.45s var(--ease-in-out-quart) 0.6s forwards;
+  }
+  .motion-ok [data-preloader-count] {
+    counter-reset: intro var(--intro-count);
+    animation:
+      preloader-count 0.45s cubic-bezier(0.45, 0, 0.55, 1) forwards,
+      preloader-fade 0.2s linear 0.45s forwards;
+  }
+  [data-preloader-count]::after {
+    content: counter(intro);
+  }
+}
+
+/* Целое число, чтобы счётчик анимировался по шагам 0→100. Где @property
+   не поддерживается, число просто сменится с 0 на 100. */
+@property --intro-count {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* 0.01, а не 0: элемент с нулевой прозрачностью браузер не считает
+   отрисованным, и LCP засчитывался бы кадром позже — после запроса скриптов.
+   Глазу разницы нет, при первой загрузке текст к тому же под прелоадером. */
+@keyframes reveal-in {
+  from {
+    opacity: 0.01;
+    transform: translateY(var(--reveal-y, 12px));
+  }
+}
+
+@keyframes preloader-count {
+  to {
+    --intro-count: 100;
+  }
+}
+
+@keyframes preloader-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes preloader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

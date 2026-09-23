@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ProjectFrames, type Frame } from "@/components/ui/ProjectFrames";
 import { getNextProject, getProject, projects } from "@/content/projects";
 import { pageMetadata } from "@/lib/metadata";
+import { projectSchema } from "@/lib/schema";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -29,6 +31,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description: project.summary,
     path: `/projects/${project.slug}`,
+    // Своё превью: ссылка на кейс в мессенджере показывает его обложку.
+    image: {
+      url: `/projects/${project.slug}/og.jpg`,
+      width: 1200,
+      height: 630,
+      type: "image/jpeg",
+      alt: `Обложка проекта ${project.title}`,
+    },
   });
 }
 
@@ -62,6 +72,8 @@ export default async function ProjectPage({ params }: PageProps) {
 
   return (
     <>
+      <JsonLd data={projectSchema(project)} />
+
       <section className="container-x pb-10 pt-[calc(var(--header-h)+10vh)] text-center">
         <h1>
           <Reveal as="span" className="display-caps block text-display" immediate>

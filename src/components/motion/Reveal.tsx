@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ElementType, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ElementType, type ReactNode } from "react";
 import clsx from "clsx";
 
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -43,8 +43,15 @@ export function Reveal({
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
 
+  // Появление «сразу» — чистым CSS (см. [data-anim="intro"] в globals.css):
+  // анимация стартует с первой отрисовки, а не после загрузки скриптов.
+  // Раньше до гидрации текст был прозрачным, и на медленном телефоне
+  // главный экран оставался пустым ~3 с (LCP). CSS-анимация заново
+  // играет и при переходе: новые узлы вставляются в документ.
+  const cssIntro = immediate && !stagger;
+
   useEffect(() => {
-    if (reduced !== false) return;
+    if (reduced !== false || cssIntro) return;
     const el = ref.current;
     if (!el) return;
 
@@ -94,7 +101,16 @@ export function Reveal({
       observer.disconnect();
       animations.forEach((animation) => animation.cancel());
     };
-  }, [reduced, delay, y, stagger, immediate]);
+  }, [reduced, delay, y, stagger, immediate, cssIntro]);
+
+  if (cssIntro) {
+    const vars = { "--reveal-delay": `${delay}s`, "--reveal-y": `${y}px` } as CSSProperties;
+    return (
+      <Tag ref={ref} id={id} data-anim="intro" style={vars} className={clsx(className)}>
+        {children}
+      </Tag>
+    );
+  }
 
   return (
     <Tag ref={ref} id={id} data-anim="hidden" className={clsx(className)}>

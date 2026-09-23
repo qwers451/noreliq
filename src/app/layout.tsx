@@ -10,8 +10,10 @@ import { Cursor } from "@/components/motion/Cursor";
 import { Grain } from "@/components/motion/Grain";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { site } from "@/content/site";
-import { openGraphBase } from "@/lib/metadata";
+import { openGraphBase, shareImage } from "@/lib/metadata";
+import { organizationSchema } from "@/lib/schema";
 
 // Геометрический гротеск для заголовков — в духе JetBrains Sans.
 // Антиква с курсивом ушла: от неё сайт читался как дизайнерское портфолио,
@@ -59,8 +61,14 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
+    images: [shareImage],
   },
   alternates: { canonical: "/" },
+  // Пустые коды не выводим: тег без значения Вебмастер считает ошибкой.
+  verification: {
+    ...(site.verification.yandex ? { yandex: site.verification.yandex } : {}),
+    ...(site.verification.google ? { google: site.verification.google } : {}),
+  },
 };
 
 export const viewport: Viewport = {
@@ -74,8 +82,11 @@ export const viewport: Viewport = {
  * Ставит .motion-ok до первой отрисовки, если пользователь не просил
  * уменьшить движение. Все «спрятанные до анимации» состояния в CSS
  * висят на этом классе, поэтому при reduced-motion контент виден сразу.
+ *
+ * Здесь же — блокировка прокрутки на время CSS-прелоадера (0,6 с счёта
+ * + 0,45 с ухода): скрипты страницы к этому моменту могут ещё не загрузиться.
  */
-const MOTION_FLAG_SCRIPT = `try{if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('motion-ok')}}catch(e){}`;
+const MOTION_FLAG_SCRIPT = `try{if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){var d=document.documentElement;d.classList.add('motion-ok','is-loading');setTimeout(function(){d.classList.remove('is-loading')},1050)}}catch(e){}`;
 
 export default function RootLayout({
   children,
@@ -91,6 +102,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: MOTION_FLAG_SCRIPT }} />
+        <JsonLd data={organizationSchema()} />
       </head>
       <body id="top">
         <a
