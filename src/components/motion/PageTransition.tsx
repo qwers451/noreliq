@@ -30,6 +30,9 @@ export function useTransitionRouter() {
   return useContext(TransitionContext);
 }
 
+/** Кривая совпадает с --ease-in-out-quart из globals.css. */
+const EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
+
 /**
  * При `trailingSlash: true` (статический экспорт) `usePathname()` отдаёт путь
  * со слэшем на конце, а ссылки в `nav.ts` — без него. Без нормализации
@@ -37,9 +40,6 @@ export function useTransitionRouter() {
  * экран и остаётся так навсегда: `router.push` на тот же маршрут не меняет
  * pathname, и «открывающий» эффект просто не запускается.
  */
-/** Кривая совпадает с --ease-in-out-quart из globals.css. */
-const EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
-
 const normalizePath = (path: string) =>
   path.length > 1 ? path.replace(/\/+$/, "") : path;
 

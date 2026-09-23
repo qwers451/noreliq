@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 
@@ -36,7 +36,16 @@ export function HorizontalProjects({ projects }: Props) {
     count: visible.length,
     mode: "free",
     wheelSurface: surfaceRef,
+    itemsKey: filter,
   });
+
+  // К первой карточке едем после перерисовки, а не в обработчике клика:
+  // оттуда переход стартовал по старому списку, а пересоздание ленты
+  // под новый фильтр тут же отменяло его — лента оставалась на полпути.
+  // Эффект объявлен после useCarousel и потому видит уже новые замеры.
+  useEffect(() => {
+    goTo(0);
+  }, [filter, goTo]);
 
   /** Теги со счётчиками — как «GAMING 22» в нижней строке референса. */
   const tags = useMemo(() => {
@@ -47,13 +56,10 @@ export function HorizontalProjects({ projects }: Props) {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
   }, [projects]);
 
-  const applyFilter = (tag: string) => {
-    setFilter(tag);
-    goTo(0);
-  };
-
   return (
-    <div ref={surfaceRef} className="flex h-full flex-col justify-center">
+    // flex-1, а не h-full: у низкой страницы высота задана через min-height,
+    // и проценты от неё не считаются — лента перестала бы стоять по центру.
+    <div ref={surfaceRef} className="flex min-h-0 flex-1 flex-col justify-center">
       <div
         ref={trackRef}
         role="region"
@@ -109,7 +115,7 @@ export function HorizontalProjects({ projects }: Props) {
         <div className="no-scrollbar flex items-center gap-x-5 overflow-x-auto px-[var(--gutter)] md:flex-wrap md:justify-center md:px-0">
           <button
             type="button"
-            onClick={() => applyFilter(ALL)}
+            onClick={() => setFilter(ALL)}
             className={clsx(
               "mono-label inline-flex min-h-11 shrink-0 items-center px-1 transition-opacity active:opacity-60",
               filter === ALL ? "opacity-100" : "opacity-50 hover:opacity-80",
@@ -122,7 +128,7 @@ export function HorizontalProjects({ projects }: Props) {
             <button
               key={tag}
               type="button"
-              onClick={() => applyFilter(tag)}
+              onClick={() => setFilter(tag)}
               className={clsx(
                 "mono-label inline-flex min-h-11 shrink-0 items-center px-1 transition-opacity active:opacity-60",
                 filter === tag ? "opacity-100" : "opacity-50 hover:opacity-80",

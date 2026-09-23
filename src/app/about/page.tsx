@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 
 import { Poster } from "@/components/ui/Poster";
 import { about } from "@/content/about";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "О нас",
   description: about.lead,
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

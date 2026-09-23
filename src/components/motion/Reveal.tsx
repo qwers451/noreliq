@@ -56,20 +56,18 @@ export function Reveal({
     let animations: Animation[] = [];
 
     const play = () => {
-      el.style.opacity = "1";
+      // Снимаем CSS-скрытие и анимируем только «от»: конечное значение
+      // браузер берёт из стилей элемента. Раньше анимация доводила до
+      // opacity: 1 и держала его, и приглушённые подписи (opacity-60)
+      // после появления становились яркими — а при reduced-motion нет.
+      el.dataset.anim = "shown";
       animations = targets.map((target, index) =>
-        target.animate(
-          [
-            { opacity: 0, transform: `translateY(${y}px)` },
-            { opacity: 1, transform: "translateY(0)" },
-          ],
-          {
-            duration: 1100,
-            delay: (delay + (stagger ?? 0) * index) * 1000,
-            easing: EASE,
-            fill: "both",
-          },
-        ),
+        target.animate([{ opacity: 0, transform: `translateY(${y}px)` }], {
+          duration: 1100,
+          delay: (delay + (stagger ?? 0) * index) * 1000,
+          easing: EASE,
+          fill: "backwards",
+        }),
       );
     };
 

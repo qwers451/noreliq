@@ -11,6 +11,11 @@ const isPages = process.env.GITHUB_PAGES === "true";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
+  env: {
+    // Клиентскому коду нужно знать, что сборка статическая: на ней префетч
+    // запрашивает RSC-файлы, которых в экспорте нет, и сыплет 404.
+    STATIC_EXPORT: isPages ? "true" : "",
+  },
   images: {
     // Свой загрузчик вместо оптимизатора — и в разработке тоже. На статике
     // оптимизатора нет вовсе, так что иначе локально видишь одну картинку,

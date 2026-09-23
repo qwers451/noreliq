@@ -4,13 +4,14 @@ import { Reveal } from "@/components/motion/Reveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
 import { Poster } from "@/components/ui/Poster";
 import { services } from "@/content/services";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Услуги",
   description:
     "Веб-платформы, карточки для маркетплейсов, AI-видео, боты и Mini Apps. Форматы работ и цены Noreliq.",
-  alternates: { canonical: "/services" },
-};
+  path: "/services",
+});
 
 export default function ServicesPage() {
   return (

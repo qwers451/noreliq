@@ -5,6 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { TransitionLink } from "@/components/motion/TransitionLink";
 import { ProjectFrames, type Frame } from "@/components/ui/ProjectFrames";
 import { getNextProject, getProject, projects } from "@/content/projects";
+import { pageMetadata } from "@/lib/metadata";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -20,11 +21,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!project) return { title: "Проект не найден" };
 
-  return {
-    title: `${project.title} — ${project.client}`,
+  // У многих кейсов клиент и есть продукт: «M-Des — M-Des» в заголовке ни к чему.
+  const title =
+    project.client === project.title ? project.title : `${project.title} — ${project.client}`;
+
+  return pageMetadata({
+    title,
     description: project.summary,
-    alternates: { canonical: `/projects/${project.slug}` },
-  };
+    path: `/projects/${project.slug}`,
+  });
 }
 
 export default async function ProjectPage({ params }: PageProps) {

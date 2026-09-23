@@ -7,7 +7,9 @@ import { site } from "@/content/site";
  */
 export function Footer() {
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40">
+    // На очень низком экране (телефон боком) строка лежала поверх ленты
+    // проектов: свайп по ней не листал карточки, а тап открывал почту.
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 [@media(max-height:500px)]:hidden">
       <div className="container-x flex items-center justify-between pb-5">
         {/* Год основания, а не диапазон: студия появилась в 2026-м,
             и «2026/2026» выглядело бы как опечатка. */}

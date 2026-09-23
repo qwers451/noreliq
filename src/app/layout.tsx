@@ -11,6 +11,7 @@ import { Grain } from "@/components/motion/Grain";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { site } from "@/content/site";
+import { openGraphBase } from "@/lib/metadata";
 
 // Геометрический гротеск для заголовков — в духе JetBrains Sans.
 // Антиква с курсивом ушла: от неё сайт читался как дизайнерское портфолио,
@@ -49,9 +50,7 @@ export const metadata: Metadata = {
   description: site.description,
   keywords: ["веб-студия", "разработка сайтов", "дизайн интерфейсов", "Next.js", site.name],
   openGraph: {
-    type: "website",
-    locale: "ru_RU",
-    siteName: site.name,
+    ...openGraphBase,
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
     url: site.url,

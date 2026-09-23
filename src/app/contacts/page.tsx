@@ -4,12 +4,13 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Poster } from "@/components/ui/Poster";
 import { legal } from "@/content/legal";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Контакты",
   description: `Связаться с ${site.name}: ${site.email}, ${site.phone}. ${site.city}.`,
-  alternates: { canonical: "/contacts" },
-};
+  path: "/contacts",
+});
 
 export default function ContactsPage() {
   return (

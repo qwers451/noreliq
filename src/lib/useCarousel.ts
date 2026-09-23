@@ -19,6 +19,12 @@ type Options = {
    * бы вовсе: вертикально эта страница не прокручивается.
    */
   wheelSurface?: RefObject<HTMLElement | null>;
+  /**
+   * Меняется, когда меняется сам набор элементов, а не только их число:
+   * два фильтра с одинаковым числом карточек иначе оставляли бы замеры
+   * и пометку активной карточки от старого списка.
+   */
+  itemsKey?: unknown;
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -39,7 +45,7 @@ const clamp = (value: number, min: number, max: number) =>
  * попадали в эту зону — отсюда оставалась дёрганость. Твин же держит
  * скорость выше пикселя за кадр почти до самого конца.
  */
-export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
+export function useCarousel({ count, mode = "free", wheelSurface, itemsKey }: Options) {
   const trackRef = useRef<HTMLDivElement>(null);
   /** Узел полосы прогресса: обновляется через CSS-переменную, без рендера. */
   const progressRef = useRef<HTMLDivElement>(null);
@@ -438,7 +444,7 @@ export function useCarousel({ count, mode = "free", wheelSurface }: Options) {
       window.removeEventListener("pointercancel", onPointerUp);
       if (hasScrollEnd) track.removeEventListener("scrollend", settle);
     };
-  }, [count, mode, reduced, wheelSurface]);
+  }, [count, mode, reduced, wheelSurface, itemsKey]);
 
   const goTo = useCallback((index: number) => controls.current?.go(index), []);
   const step = useCallback((dir: number) => controls.current?.step(dir), []);
