@@ -64,11 +64,6 @@ export const metadata: Metadata = {
     images: [shareImage],
   },
   alternates: { canonical: "/" },
-  // Пустые коды не выводим: тег без значения Вебмастер считает ошибкой.
-  verification: {
-    ...(site.verification.yandex ? { yandex: site.verification.yandex } : {}),
-    ...(site.verification.google ? { google: site.verification.google } : {}),
-  },
 };
 
 export const viewport: Viewport = {

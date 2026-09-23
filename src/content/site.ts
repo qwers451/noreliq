@@ -21,15 +21,6 @@ export const site = {
   city: "Санкт-Петербург",
   timezone: "GMT+3",
   foundedYear: 2026,
-  /**
-   * Коды подтверждения прав: Яндекс Вебмастер и Google Search Console
-   * (способ «Мета-тег», только значение content). Пустая строка — тег
-   * не выводится.
-   */
-  verification: {
-    yandex: "",
-    google: "",
-  },
   socials: [
     { label: "Telegram", href: "https://t.me/noreliq_dev", handle: "@noreliq_dev" },
   ] satisfies SocialLink[],
