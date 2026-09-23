@@ -35,6 +35,17 @@ export function useTransitionRouter() {
 
 /** Кривая совпадает с --ease-in-out-quart из globals.css. */
 const EASE = "cubic-bezier(0.76, 0, 0.24, 1)";
+/** Кривая совпадает с --ease-out-expo: быстрый старт, мягкая остановка. */
+const EASE_OUT = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+/** Длительность волны перехода. */
+const WAVE_MS = 650;
+/**
+ * Когда начинать загрузку следующей страницы. На 70% пути волна по этой
+ * кривой уже почти закрыла экран, и подмену не видно. Если ждать конца
+ * волны, загрузка шла уже после неё, и экран висел залитым цветом.
+ */
+const PUSH_AT_MS = WAVE_MS * 0.7;
 
 /**
  * При `trailingSlash: true` (статический экспорт) `usePathname()` отдаёт путь
@@ -58,6 +69,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   /** Анимации шторки: при новом переходе старые гасим, иначе они копятся
       с fill: forwards и перебивают друг друга. */
   const curtainAnims = useRef<Animation[]>([]);
+  const pushTimer = useRef(0);
   const previousPath = useRef(pathname);
   const [progress, setProgress] = useState(0);
 
@@ -122,14 +134,17 @@ export function PageTransition({ children }: { children: ReactNode }) {
 
     // Под волной уже поле нового раздела того же цвета, так что растворение
     // заливки читается как проявление страницы, а не как вторая шторка.
+    // Быстрый старт растворения: с плавным разгоном текст новой страницы
+    // первые ~200 мс почти не проступал сквозь заливку.
     const open = curtain.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: 550,
-      easing: EASE,
+      duration: 450,
+      easing: EASE_OUT,
       fill: "forwards",
     });
     curtainAnims.current.push(open);
     open.onfinish = () => {
       coveredRef.current = false;
+      document.documentElement.classList.remove("is-switching");
       curtain.style.visibility = "hidden";
       curtain.style.pointerEvents = "none";
       curtainAnims.current.forEach((animation) => animation.cancel());
@@ -165,9 +180,11 @@ export function PageTransition({ children }: { children: ReactNode }) {
       );
 
       // Прерванный переход (второй клик во время волны) гасим целиком:
-      // иначе его onfinish всё равно увёл бы на первый адрес.
+      // иначе его таймер всё равно увёл бы на первый адрес.
       curtainAnims.current.forEach((animation) => animation.cancel());
+      window.clearTimeout(pushTimer.current);
       coveredRef.current = true;
+      document.documentElement.classList.add("is-switching");
       curtain.style.backgroundColor = next.bg;
       curtain.style.pointerEvents = "auto";
       curtain.style.visibility = "visible";
@@ -177,10 +194,12 @@ export function PageTransition({ children }: { children: ReactNode }) {
           { clipPath: `circle(0px at ${x}px ${y}px)` },
           { clipPath: `circle(${radius}px at ${x}px ${y}px)` },
         ],
-        { duration: 750, easing: EASE, fill: "forwards" },
+        { duration: WAVE_MS, easing: EASE, fill: "forwards" },
       );
       curtainAnims.current = [cover];
-      cover.onfinish = () => router.push(href);
+      // Роутер держит старую страницу, пока грузит новую, поэтому загрузка
+      // идёт параллельно с хвостом волны, а не после неё.
+      pushTimer.current = window.setTimeout(() => router.push(href), PUSH_AT_MS);
     },
     [pathname, reduced, router],
   );
