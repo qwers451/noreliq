@@ -36,7 +36,14 @@ export function TransitionLink({ href, children, onClick, ...rest }: TransitionL
       return;
     }
     event.preventDefault();
-    navigate(href);
+    // Волна перехода идёт от точки нажатия. У клика с клавиатуры (Enter)
+    // координат нет — detail у него 0, — тогда берём центр самой ссылки.
+    const box = event.currentTarget.getBoundingClientRect();
+    const origin =
+      event.detail === 0
+        ? { x: box.left + box.width / 2, y: box.top + box.height / 2 }
+        : { x: event.clientX, y: event.clientY };
+    navigate(href, origin);
   };
 
   return (

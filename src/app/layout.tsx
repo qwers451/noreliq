@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   // Цвет поля главной страницы: панель браузера на телефоне сливается
   // с сайтом, а не подсвечивает светлую полосу над тёмной заливкой.
-  themeColor: "#111c3b",
+  themeColor: "#241a86",
   colorScheme: "dark",
 };
 

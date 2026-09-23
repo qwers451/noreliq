@@ -21,27 +21,30 @@ export type Field = {
   dark: boolean;
 };
 
+// Все поля тёмные и одной глубины, как экраны у референса: сайт читается
+// одной семьёй, а разделы различаются оттенком, а не яркостью.
 export const fields = {
+  // Главная: глубокий ультрамарин. Прежняя тёмно-синяя ночь по яркости
+  // совпадала с графитом «Проектов», и два раздела выглядели одинаково.
+  ultramarine: { key: "ultramarine", bg: "#241a86", ink: "#eeecff", accent: "#9ae63c", line: "rgba(238,236,255,0.22)", glow: "rgba(150,130,255,0.18)", dark: true },
+  // «О нас»: бордо вместо светлой страницы, которая выбивалась из ряда.
+  wine: { key: "wine", bg: "#6b1531", ink: "#fbeef1", accent: "#9ae63c", line: "rgba(251,238,241,0.22)", glow: "rgba(255,140,170,0.12)", dark: true },
   moss: { key: "moss", bg: "#17472f", ink: "#f1f5ef", accent: "#9ae63c", line: "rgba(241,245,239,0.22)", glow: "rgba(154,230,60,0.12)", dark: true },
-  // Главная: глубокая синяя ночь. Графит слишком похож на «Проекты»,
-  // а насыщенный тёмно-синий держит лайм логотипа и читается дороже.
-  midnight: { key: "midnight", bg: "#111c3b", ink: "#eef1fa", accent: "#9ae63c", line: "rgba(238,241,250,0.22)", glow: "rgba(120,150,235,0.16)", dark: true },
   carbon: { key: "carbon", bg: "#212121", ink: "#f2f2f0", accent: "#9ae63c", line: "rgba(242,242,240,0.2)", glow: "rgba(154,230,60,0.09)", dark: true },
-  indigo: { key: "indigo", bg: "#2f3bd0", ink: "#f2f3ff", accent: "#9ae63c", line: "rgba(242,243,255,0.25)", glow: "rgba(255,255,255,0.14)", dark: true },
-  bone: { key: "bone", bg: "#efece4", ink: "#14171a", accent: "#4a7d10", line: "rgba(20,23,26,0.18)", glow: "transparent", dark: false },
+  cobalt: { key: "cobalt", bg: "#1a47a8", ink: "#eef3ff", accent: "#9ae63c", line: "rgba(238,243,255,0.24)", glow: "rgba(140,180,255,0.16)", dark: true },
 } satisfies Record<string, Field>;
 
 export type FieldKey = keyof typeof fields;
 
 /** Какому маршруту какое поле. Вложенные пути наследуют раздел. */
 const byRoute: [string, FieldKey][] = [
-  ["/about", "bone"],
+  ["/about", "wine"],
   ["/services", "moss"],
   ["/projects", "carbon"],
-  ["/contacts", "indigo"],
+  ["/contacts", "cobalt"],
 ];
 
 export function fieldForPath(pathname: string): FieldKey {
   const match = byRoute.find(([prefix]) => pathname.startsWith(prefix));
-  return match ? match[1] : "midnight";
+  return match ? match[1] : "ultramarine";
 }

@@ -17,9 +17,12 @@ import { scrollToTop } from "@/components/motion/SmoothScroll";
 import { fieldForPath, fields } from "@/content/themes";
 import { site } from "@/content/site";
 
+/** Точка на экране, откуда расходится волна перехода. */
+export type TransitionOrigin = { x: number; y: number };
+
 type TransitionContextValue = {
   /** Проигрывает «шторку» и только потом меняет маршрут. */
-  navigate: (href: string) => void;
+  navigate: (href: string, origin?: TransitionOrigin) => void;
 };
 
 const TransitionContext = createContext<TransitionContextValue>({
@@ -52,6 +55,9 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const preloaderRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const coveredRef = useRef(false);
+  /** Анимации шторки: при новом переходе старые гасим, иначе они копятся
+      с fill: forwards и перебивают друг друга. */
+  const curtainAnims = useRef<Animation[]>([]);
   const previousPath = useRef(pathname);
   const [progress, setProgress] = useState(0);
 
@@ -114,15 +120,20 @@ export function PageTransition({ children }: { children: ReactNode }) {
     const curtain = curtainRef.current;
     if (reduced !== false || !curtain || !coveredRef.current) return;
 
+    // Под волной уже поле нового раздела того же цвета, так что растворение
+    // заливки читается как проявление страницы, а не как вторая шторка.
     const open = curtain.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: 700,
+      duration: 550,
       easing: EASE,
       fill: "forwards",
     });
+    curtainAnims.current.push(open);
     open.onfinish = () => {
       coveredRef.current = false;
       curtain.style.visibility = "hidden";
       curtain.style.pointerEvents = "none";
+      curtainAnims.current.forEach((animation) => animation.cancel());
+      curtainAnims.current = [];
     };
 
     return () => {
@@ -131,7 +142,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   }, [pathname, reduced]);
 
   const navigate = useCallback(
-    (href: string) => {
+    (href: string, origin?: TransitionOrigin) => {
       // В статическом экспорте у путей есть завершающий слеш, поэтому
       // сравниваем нормализованные значения.
       if (normalizePath(href) === normalizePath(pathname)) return;
@@ -142,19 +153,33 @@ export function PageTransition({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Заливка в цвет следующего раздела: переход читается как смена
-      // цветового поля, без резких панелей.
+      // Волна цвета следующего раздела расходится от точки нажатия и
+      // заливает экран: переход читается как смена цветового поля.
       const next = fields[fieldForPath(href)];
+      const x = origin?.x ?? window.innerWidth / 2;
+      const y = origin?.y ?? window.innerHeight / 2;
+      // Радиус — до самого дальнего угла, иначе круг не закроет экран.
+      const radius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y),
+      );
+
+      // Прерванный переход (второй клик во время волны) гасим целиком:
+      // иначе его onfinish всё равно увёл бы на первый адрес.
+      curtainAnims.current.forEach((animation) => animation.cancel());
       coveredRef.current = true;
       curtain.style.backgroundColor = next.bg;
       curtain.style.pointerEvents = "auto";
       curtain.style.visibility = "visible";
 
-      const cover = curtain.animate([{ opacity: 0 }, { opacity: 1 }], {
-        duration: 550,
-        easing: EASE,
-        fill: "forwards",
-      });
+      const cover = curtain.animate(
+        [
+          { clipPath: `circle(0px at ${x}px ${y}px)` },
+          { clipPath: `circle(${radius}px at ${x}px ${y}px)` },
+        ],
+        { duration: 750, easing: EASE, fill: "forwards" },
+      );
+      curtainAnims.current = [cover];
       cover.onfinish = () => router.push(href);
     },
     [pathname, reduced, router],
